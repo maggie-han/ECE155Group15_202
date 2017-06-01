@@ -72,10 +72,10 @@ public class MainActivity extends AppCompatActivity {
         //sensor, sensor manager, their respective listeners
         sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
 
-        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         AccelerometerEventListener ael = new AccelerometerEventListener(an,arn,graph,readingOutput);
 
-        sensorManager.registerListener(ael,accelerometer,SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(ael,accelerometer,SensorManager.SENSOR_DELAY_GAME);
 
 
         //record data button
