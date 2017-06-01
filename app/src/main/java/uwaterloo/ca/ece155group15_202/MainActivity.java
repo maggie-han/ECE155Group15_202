@@ -195,7 +195,7 @@ class AccelerometerEventListener implements SensorEventListener {
             z = se.values[2];
 
             fx+=(x-fx)/C;
-            fy+=(y-fx)/C;
+            fy+=(y-fy)/C;
             fz+=(z-fz)/C;
 
             String s = String.format("(%.1f,%.1f,%.1f)",fx,fy,fz);
