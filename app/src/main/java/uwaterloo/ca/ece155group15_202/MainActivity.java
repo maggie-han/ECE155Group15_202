@@ -27,15 +27,15 @@ import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
 
-    LinearLayout l1;            //layout used
-    LineGraphView graph;        //graph displaying output
-    ArrayList<String> readingOutput = new ArrayList <String>();         //arraylist of string accelerometer readings
-    File file = null;           //initialize file to write to
-    PrintWriter prt = null;
-    Button myButton;            //myButton records accelerometer readings
-    Button resetButton;
-    TextView arn = null;        //accelerometer record number
-    TextView an = null;         //accelerometer current number
+    LinearLayout l1;            // layout used
+    LineGraphView graph;        // graph displaying output
+    ArrayList<String> readingOutput = new ArrayList <String>();         // arraylist of string accelerometer readings
+    File file = null;           // initialize file to write to
+    PrintWriter prt = null;     // initialize the writer
+    Button myButton;            // myButton records accelerometer readings
+    Button resetButton;         // resetButton clears the maximum readings
+    TextView arn = null;        // accelerometer record number
+    TextView an = null;         // accelerometer current number
 
     int filenum = 0;
     Sensor accelerometer;
@@ -49,13 +49,13 @@ public class MainActivity extends AppCompatActivity {
         l1 = (LinearLayout)findViewById(R.id.layout);
         l1.setOrientation(LinearLayout.VERTICAL);
 
-        //create new instance of reset button
+        // create new instance of reset button
         resetButton = new Button (getApplicationContext());
 
         l1.addView(resetButton);
 
-        //set up textviews for the various sensor readings
-        //some default values for test to see if getting readings
+        // set up textviews for the various sensor readings
+        // some default values for test to see if getting readings
 
         TextView accel = createLabel("The Accelerometer Reading is: ");
         an = createLabel("0.1");
@@ -69,15 +69,13 @@ public class MainActivity extends AppCompatActivity {
 
         //******************************SENSOR STUFF***********************************
 
-
-        //sensor, sensor manager, their respective listeners
+        //sensor, sensor manager, and their respective listeners
         sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
 
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         AccelerometerEventListener ael = new AccelerometerEventListener(an,arn,graph,readingOutput);
 
         sensorManager.registerListener(ael,accelerometer,SensorManager.SENSOR_DELAY_GAME);
-
 
         //record data button
         myButton = new Button (getApplicationContext());
@@ -113,8 +111,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void recordData (PrintWriter prt, ArrayList<String> readingOutput)
-    {
+    public void recordData (PrintWriter prt, ArrayList<String> readingOutput) {
         //file writing game data
         try {
             String name = String.format("accel %d.csv",filenum);
@@ -187,21 +184,24 @@ class AccelerometerEventListener implements SensorEventListener {
         //max_output.setText("changed here");
         if (se.sensor.getType()==Sensor.TYPE_LINEAR_ACCELERATION)
         {
+            float x = se.values[0];
+            float y = se.values[1];
+            float z = se.values[2];
             //max_output.setText("It changes");
-            String s = String.format("(%.1f,%.1f,%.1f)",se.values[0],se.values[1],se.values[2]);
+            String s = String.format("(%.1f,%.1f,%.1f)", x, y, z);
             curr_output.setText(s);
-            float array [] =  {se.values[0],se.values[1],se.values[2]};
+            float array [] =  {x, y, z};
             //graph.purge();
             graph.addPoint(array);
-            if (se.values[0]>max_x)
+            if (x>max_x)
             {
                 max_x = se.values[0];
             }
-            if (se.values[1]>max_y)
+            if (y>max_y)
             {
                 max_y = se.values[1];
             }
-            if (se.values[2]>max_z)
+            if (z>max_z)
             {
                 max_z = se.values[2];
             }
@@ -209,8 +209,8 @@ class AccelerometerEventListener implements SensorEventListener {
             String m = String.format("(%.1f,%.1f,%.1f)",max_x,max_y,max_z);
             max_output.setText(m);
 
-            String output = String.format("%.1f,%.1f,%.1f",se.values[0],se.values[1],se.values[2]);
-            if (readingOutput.size()>100)
+            String output = String.format("%.1f,%.1f,%.1f",x, y, z);
+            if (readingOutput.size() > 100)
             {
                 readingOutput.remove(0);
                 readingOutput.add(99,output);
