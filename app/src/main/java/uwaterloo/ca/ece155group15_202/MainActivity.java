@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     TextView arn = null;        //accelerometer record number
     TextView an = null;         //accelerometer current number
 
+    int filenum = 0;
     Sensor accelerometer;
     SensorManager sensorManager;
 
@@ -116,7 +117,9 @@ public class MainActivity extends AppCompatActivity {
     {
         //file writing game data
         try {
-            file = new File(getExternalFilesDir("Game Data"), "accel.csv");
+            String name = String.format("accel %d.csv",filenum);
+            file = new File(getExternalFilesDir("Game Data"), name);
+            filenum++;
             prt = new PrintWriter(file);
         }
         catch (IOException e)
@@ -127,6 +130,8 @@ public class MainActivity extends AppCompatActivity {
         try{
             for (int i = 0; i < 100; i++)
                 prt.println(readingOutput.get(i));
+
+            readingOutput.clear();
         }
         catch(Exception e)
         {
@@ -179,8 +184,10 @@ class AccelerometerEventListener implements SensorEventListener {
 
     public void onAccuracyChanged(Sensor s, int i){}
     public void onSensorChanged (SensorEvent se){
-        if (se.sensor.getType()==Sensor.TYPE_ACCELEROMETER)
+        //max_output.setText("changed here");
+        if (se.sensor.getType()==Sensor.TYPE_LINEAR_ACCELERATION)
         {
+            //max_output.setText("It changes");
             String s = String.format("(%.1f,%.1f,%.1f)",se.values[0],se.values[1],se.values[2]);
             curr_output.setText(s);
             float array [] =  {se.values[0],se.values[1],se.values[2]};
@@ -215,6 +222,7 @@ class AccelerometerEventListener implements SensorEventListener {
 
             //se.values[0] contains the value i want
             //probably should store this
+
         }
     }
 
@@ -225,117 +233,4 @@ class AccelerometerEventListener implements SensorEventListener {
         max_z=0;
     }
 
-
 }
-
-
-class LightSensorEventListener implements SensorEventListener{
-    TextView output,outputMax;
-    float maxReading = 0;
-
-    public LightSensorEventListener(TextView outputView,TextView max){
-        output = outputView;
-        outputMax = max;
-    }
-
-    public void onAccuracyChanged(Sensor s, int i){}
-    public void onSensorChanged (SensorEvent se){
-        if (se.sensor.getType()==Sensor.TYPE_LIGHT)
-        {
-            String s = String.format("%.1f",se.values[0]);
-            output.setText(s);
-
-            if (se.values[0]>maxReading) {
-                maxReading = se.values[0];
-                outputMax.setText(String.format("%.1f",se.values[0]));
-            }
-
-
-            //se.values[0] contains the value i want
-            //probably should store this
-        }
-    }
-}
-
-
-class MagneticEventListener implements SensorEventListener{
-    TextView curr_output,max_output;
-    float max_x=0,max_y=0,max_z=0;
-
-
-
-    public MagneticEventListener(TextView curr, TextView max){
-        curr_output = curr;
-        max_output = max;
-    }
-
-    public void onAccuracyChanged(Sensor s, int i){
-    }
-    public void onSensorChanged (SensorEvent se){
-        if (se.sensor.getType()==Sensor.TYPE_MAGNETIC_FIELD)
-        {
-            String s = String.format("(%.1f,%.1f,%.1f)",se.values[0],se.values[1],se.values[2]);
-            curr_output.setText(s);
-
-            if (se.values[0]>max_x)
-            {
-                max_x = se.values[0];
-            }
-            if (se.values[1]>max_y)
-            {
-                max_y = se.values[1];
-            }
-            if (se.values[2]>max_z)
-            {
-                max_z = se.values[2];
-            }
-
-            String m = String.format("(%.1f,%.1f,%.1f)",max_x,max_y,max_z);
-            max_output.setText(m);
-
-            //se.values[0] contains the value i want
-            //probably should store this
-        }
-    }
-}
-
-class RotationEventListener implements SensorEventListener {
-    private TextView curr_output, max_output;
-    private float max_x = 0, max_y = 0, max_z = 0;
-
-    public RotationEventListener(TextView curr, TextView max) {
-        curr_output = curr;
-        max_output = max;
-    }
-    public void resetMax(){
-        max_output.setText("0");
-    }
-    public void onAccuracyChanged(Sensor s, int i) {
-    }
-
-    public void onSensorChanged(SensorEvent se) {
-        max_output.setText("i rot");
-        if (se.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
-            String s = String.format("(%.1f,%.1f,%.1f)", se.values[0], se.values[1], se.values[2]);
-            curr_output.setText(s);
-
-            if (se.values[0] > max_x) {
-                max_x = se.values[0];
-            }
-            if (se.values[1] > max_y) {
-                max_y = se.values[1];
-            }
-            if (se.values[2] > max_z) {
-                max_z = se.values[2];
-            }
-
-            String m = String.format("(%.1f,%.1f,%.1f)", max_x, max_y, max_z);
-            max_output.setText(m);
-
-
-            //se.values[0] contains the value i want
-            //probably should store this
-        }
-    }
-}
-
