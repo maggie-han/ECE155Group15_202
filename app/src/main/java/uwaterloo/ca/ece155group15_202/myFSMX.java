@@ -15,7 +15,7 @@ public class myFSMX {
     enum Signatures{LEFT,RIGHT,UNDETERMINED};
     private Signatures mySig;
 
-    private final float [] THRESHOLD_RIGHT = {1.0f,1.5f,0.2f};
+    private final float [] THRESHOLD_RIGHT = {0.4f,-0.5f,0.2f};
 
     private int sampleCounter;
     private final int SAMPLE_COUNTER_DEFAULT = 30;
@@ -45,15 +45,15 @@ public class myFSMX {
         float accSlope = accInput-prevReading;
         switch(myStates) {
            case WAIT:
-               //myTV.setText(String.format("wait on slope %f",accSlope));
+               myTV.setText(String.format("wait on slope %f",accSlope));
                if (accSlope >=THRESHOLD_RIGHT[0])
                {
                    myStates = FSMStates.RISE;
                }
                break;
            case RISE:
-               //myTV.setText("RISE");
-               if (prevReading>=THRESHOLD_RIGHT[1])
+               myTV.setText("RISE");
+               if (accSlope<=THRESHOLD_RIGHT[1])
                {
                    myStates = FSMStates.STABLE;
                }
@@ -65,7 +65,7 @@ public class myFSMX {
                break;
            case STABLE:
                //Log.d("myfsm","STABILIZING");
-               //myTV.setText("Stable");
+               myTV.setText("Stable");
                sampleCounter--;
                if (sampleCounter==0)
                {

@@ -15,7 +15,7 @@ public class myFSMY {
     enum Signatures{UP,DOWN,UNDETERMINED};
     private myFSMY.Signatures mySig;
 
-    private final float [] THRESHOLD_UP = {1.0f,1.5f,0.2f};
+    private final float [] THRESHOLD_UP = {0.4f,-0.5f,0.2f};
 
     private int sampleCounter;
     private final int SAMPLE_COUNTER_DEFAULT = 30;
@@ -46,6 +46,7 @@ public class myFSMY {
         switch(myStates) {
             case WAIT:
                 //myTV.setText(String.format("wait on slope %f",accSlope));
+                //myTV.setText("wait");
                 if (accSlope >=THRESHOLD_UP[0])
                 {
                     myStates = myFSMY.FSMStates.RISE;
@@ -53,14 +54,9 @@ public class myFSMY {
                 break;
             case RISE:
                 //myTV.setText("RISE");
-                if (prevReading>=THRESHOLD_UP[1])
+                if (accSlope<=THRESHOLD_UP[1])
                 {
                     myStates = myFSMY.FSMStates.STABLE;
-                }
-                else
-                {
-                    myStates = myFSMY.FSMStates.FALL;
-                    mySig = myFSMY.Signatures.UNDETERMINED;
                 }
                 break;
             case STABLE:
@@ -70,7 +66,7 @@ public class myFSMY {
                 if (sampleCounter==0)
                 {
                     myStates = myFSMY.FSMStates.DETERMINED;
-                    if (Math.abs(accInput)<THRESHOLD_UP[2])
+                    if (Math.abs(accSlope)<THRESHOLD_UP[2])
                     {
                         mySig = myFSMY.Signatures.UP;
                     }
@@ -89,6 +85,7 @@ public class myFSMY {
                 // call resetFSM();
                 break;
             default:
+                myTV.setText("reset");
                 resetFSM();
                 break;
         }
