@@ -73,8 +73,11 @@ public class MainActivity extends AppCompatActivity {
         //sensor, sensor manager, their respective listeners
         sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
 
+
+        TextView motionx = createLabel("The X Motion is:");
+        TextView motiony = createLabel("The Y motion is:");
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-        AccelerometerEventListener ael = new AccelerometerEventListener(an,arn,graph,readingOutput);
+        AccelerometerEventListener ael = new AccelerometerEventListener(an,arn,motionx,motiony,graph,readingOutput);
 
         sensorManager.registerListener(ael,accelerometer,SensorManager.SENSOR_DELAY_GAME);
 
@@ -100,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
 
         resetButton.setBackgroundColor(Color.BLUE);
         resetButton.setTextColor(Color.WHITE);
+
     }
 
 
@@ -165,82 +169,3 @@ class MyOnClickListener implements View.OnClickListener
 
 };
 
-class AccelerometerEventListener implements SensorEventListener {
-    TextView curr_output,max_output;
-    float max_x=0,max_y=0,max_z=0;
-    float x=0,y=0,z=0,fx=0,fy=0,fz=0;
-    int C = 5;
-    LineGraphView graph;
-    ArrayList<String> readingOutput = new ArrayList <String>();         //arraylist of string accelerometer readings
-
-
-
-    public AccelerometerEventListener(TextView curr, TextView max, LineGraphView g, ArrayList<String> r){
-        curr_output = curr;
-        max_output = max;
-        graph = g;
-        readingOutput = r;
-    }
-
-
-
-    public void onAccuracyChanged(Sensor s, int i){}
-    public void onSensorChanged (SensorEvent se){
-        //max_output.setText("changed here");
-        if (se.sensor.getType()==Sensor.TYPE_LINEAR_ACCELERATION)
-        {
-            //max_output.setText("It changes");
-            x = se.values[0];
-            y = se.values[1];
-            z = se.values[2];
-
-            fx+=(x-fx)/C;
-            fy+=(y-fy)/C;
-            fz+=(z-fz)/C;
-
-            String s = String.format("(%.1f,%.1f,%.1f)",fx,fy,fz);
-            curr_output.setText(s);
-            float array [] =  {fx,fy,fz};
-            //graph.purge();
-            graph.addPoint(array);
-            if (x>max_x)
-            {
-                max_x = x;
-            }
-            if (y>max_y)
-            {
-                max_y = y;
-            }
-            if (z>max_z)
-            {
-                max_z = z;
-            }
-
-            String m = String.format("(%.1f,%.1f,%.1f)",max_x,max_y,max_z);
-            max_output.setText(m);
-
-            String output = String.format("%.1f,%.1f,%.1f",fx,fy,fz);
-            if (readingOutput.size()>100)
-            {
-                readingOutput.remove(0);
-                readingOutput.add(99,output);
-            }
-            else
-            {
-                readingOutput.add(output);
-            }
-
-            //se.values[0] contains the value i want
-            //probably should store this
-
-        }
-    }
-
-    public void resetMax(){
-        readingOutput.clear();
-        max_x=0;
-        max_y=0;
-        max_z=0;
-    }
-
-}

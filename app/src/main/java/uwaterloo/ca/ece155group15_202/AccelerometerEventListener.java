@@ -5,6 +5,8 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 
 import ca.uwaterloo.sensortoy.LineGraphView;
@@ -20,16 +22,21 @@ class AccelerometerEventListener implements SensorEventListener {
     private int C = 5;
     private LineGraphView graph;
     private ArrayList<String> readingOutput = new ArrayList <String>();         //arraylist of string accelerometer readings
+    private TextView motion1,motion2;
+    private myFSMX FSM_X;
+    private myFSMY FSM_Y;
 
-    private myFSM FSM_X;
 
-
-    public AccelerometerEventListener(TextView curr, TextView max, LineGraphView g, ArrayList<String> r){
+    public AccelerometerEventListener(TextView curr, TextView max, TextView mo1,TextView mo2, LineGraphView g, ArrayList<String> r){
         curr_output = curr;
         max_output = max;
         graph = g;
         readingOutput = r;
-        FSM_X = new myFSM();
+        motion1 = mo1;
+        motion2 = mo2;
+        FSM_X = new myFSMX(motion1);
+        FSM_Y = new myFSMY(motion2);
+
     }
 
 
@@ -49,6 +56,7 @@ class AccelerometerEventListener implements SensorEventListener {
             fz+=(z-fz)/C;
 
             FSM_X.activateFSM(fx);
+            FSM_Y.activateFSM(fy);
 
             String s = String.format("(%.1f,%.1f,%.1f)",fx,fy,fz);
             curr_output.setText(s);

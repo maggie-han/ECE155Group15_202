@@ -1,12 +1,13 @@
 package uwaterloo.ca.ece155group15_202;
 
 import android.util.Log;
+import android.widget.TextView;
 
 /**
  * Created by Maggie on 2017-06-01.
  */
 
-public class myFSM {
+public class myFSMX {
 
     enum FSMStates {WAIT,RISE,FALL,STABLE,DETERMINED};
     private FSMStates myStates;
@@ -19,14 +20,16 @@ public class myFSM {
     private int sampleCounter;
     private final int SAMPLE_COUNTER_DEFAULT = 30;
 
+    private TextView myTV;
+
     private float prevReading;
 
-    public myFSM(){
+    public myFSMX(TextView tv){
         myStates = FSMStates.WAIT;
         mySig = Signatures.UNDETERMINED;
         prevReading=0;
         sampleCounter=SAMPLE_COUNTER_DEFAULT;
-
+        myTV = tv;
     }
 
     public void resetFSM(){
@@ -42,14 +45,14 @@ public class myFSM {
         float accSlope = accInput-prevReading;
         switch(myStates) {
            case WAIT:
-               Log.d("myfsm",String.format("wait on slope %f",accSlope));
+               //myTV.setText(String.format("wait on slope %f",accSlope));
                if (accSlope >=THRESHOLD_RIGHT[0])
                {
                    myStates = FSMStates.RISE;
                }
                break;
            case RISE:
-               Log.d("myfsm","CASE RISE");
+               //myTV.setText("RISE");
                if (prevReading>=THRESHOLD_RIGHT[1])
                {
                    myStates = FSMStates.STABLE;
@@ -61,7 +64,8 @@ public class myFSM {
                }
                break;
            case STABLE:
-               Log.d("myfsm","STABILIZING");
+               //Log.d("myfsm","STABILIZING");
+               //myTV.setText("Stable");
                sampleCounter--;
                if (sampleCounter==0)
                {
@@ -80,6 +84,8 @@ public class myFSM {
                    Log.d("myfsm","UNDERTERMINED");
                }
                //set textview
+               myTV.setText(mySig.toString());
+               resetFSM();
                // call resetFSM();
                break;
            default:
