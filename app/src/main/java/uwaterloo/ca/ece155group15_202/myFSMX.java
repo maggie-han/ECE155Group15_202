@@ -15,11 +15,11 @@ public class myFSMX {
     enum Signatures{LEFT,RIGHT,UNDETERMINED};
     private Signatures mySig;
 
-    private final float [] THRESHOLD_RIGHT = {0.4f,-0.5f,0.2f};
+    private final float [] THRESHOLD_RIGHT = {0.5f,2.0f,0.2f};
 
     private int sampleCounter;
     private final int SAMPLE_COUNTER_DEFAULT = 30;
-
+    private int waitTime = 0;
     private TextView myTV;
 
     private float prevReading;
@@ -37,6 +37,7 @@ public class myFSMX {
         mySig = Signatures.UNDETERMINED;
         prevReading=0;
         sampleCounter=SAMPLE_COUNTER_DEFAULT;
+        waitTime = 0;
 
     }
 
@@ -44,56 +45,79 @@ public class myFSMX {
     {
         float accSlope = accInput-prevReading;
         switch(myStates) {
-           case WAIT:
-               myTV.setText(String.format("wait on slope %f",accSlope));
-               if (accSlope >=THRESHOLD_RIGHT[0])
-               {
-                   myStates = FSMStates.RISE;
-               }
-               break;
-           case RISE:
-               myTV.setText("RISE");
-               if (accSlope<=THRESHOLD_RIGHT[1])
-               {
-                   myStates = FSMStates.STABLE;
-               }
-               else
-               {
-                   myStates = FSMStates.FALL;
-                   mySig = Signatures.UNDETERMINED;
-               }
-               break;
-           case STABLE:
-               //Log.d("myfsm","STABILIZING");
-               myTV.setText("Stable");
-               sampleCounter--;
-               if (sampleCounter==0)
-               {
-                   myStates = FSMStates.DETERMINED;
-                   if (Math.abs(accInput)<THRESHOLD_RIGHT[2])
-                   {
-                       mySig = Signatures.RIGHT;
-                   }
-                   else
-                       mySig = Signatures.UNDETERMINED;
-               }
-               break;
-           case DETERMINED:
-               if (mySig == Signatures.UNDETERMINED)
-               {
-                   Log.d("myfsm","UNDERTERMINED");
-               }
-               //set textview
-               myTV.setText(mySig.toString());
-               resetFSM();
-               // call resetFSM();
-               break;
-           default:
-               resetFSM();
-               break;
-       }
+            case WAIT:
+                //myTV.setText(String.format("wait on slope %f",accSlope));
+                //myTV.setText("wait");
+                if (accSlope >=THRESHOLD_RIGHT[0] && accInput >=THRESHOLD_RIGHT[1])
+                {
+                    myStates = myFSMX.FSMStates.RISE;
+                }
+                else if (accSlope <=-THRESHOLD_RIGHT[0]&&accInput<=-THRESHOLD_RIGHT[1])
+                {
+                    myStates = myFSMX.FSMStates.FALL;
+                }
+                break;
+            case RISE:
+                //myTV.setText("RISE");
+                if (accInput<prevReading)
+                {
+                    myStates = myFSMX.FSMStates.STABLE;
+                    mySig =  myFSMX.Signatures.RIGHT;
+                }
+                else
+                {
+                    waitTime++;
+                    if (waitTime>20) {
+                        mySig = myFSMX.Signatures.UNDETERMINED;
+                        myStates = myFSMX.FSMStates.DETERMINED;
+                    }
 
-       prevReading = accInput;
+                }
+                break;
+            case FALL:
+                if (accInput>prevReading)
+                {
+                    myStates = myFSMX.FSMStates.STABLE;
+                    mySig = myFSMX.Signatures.LEFT;
+                }
+                else
+                {
+                    waitTime++;
+                    if (waitTime>20) {
+                        mySig = myFSMX.Signatures.UNDETERMINED;
+                        myStates = myFSMX.FSMStates.DETERMINED;
+                    }
+                }
+                break;
+            case STABLE:
+                //Log.d("myfsm","STABILIZING");
+                //myTV.setText("Stable");
+                sampleCounter--;
+                if (sampleCounter==0)
+                {
+                    myStates = myFSMX.FSMStates.DETERMINED;
+                    if (Math.abs(accSlope)<THRESHOLD_RIGHT[2])
+                    {
+
+                    }
+                    else
+                        mySig = myFSMX.Signatures.UNDETERMINED;
+                }
+                break;
+            case DETERMINED:
+                if (mySig!=myFSMX.Signatures.UNDETERMINED)
+                    myTV.setText(mySig.toString());
+                resetFSM();
+                // call resetFSM();
+                break;
+            default:
+                myTV.setText("reset");
+                resetFSM();
+                break;
+        }
+
+        prevReading = accInput;
     }
+
 }
 

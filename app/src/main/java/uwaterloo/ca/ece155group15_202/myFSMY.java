@@ -1,6 +1,5 @@
 package uwaterloo.ca.ece155group15_202;
 
-import android.util.Log;
 import android.widget.TextView;
 
 /**
@@ -15,11 +14,13 @@ public class myFSMY {
     enum Signatures{UP,DOWN,UNDETERMINED};
     private myFSMY.Signatures mySig;
 
-    private final float [] THRESHOLD_UP = {0.4f,-0.5f,0.2f};
+    private final float [] THRESHOLD_UP = {0.3f,2,0.2f};
+    private final float [] THRESHOLD_DOWN = {-0.4f,-1.5f,0.2f};
 
     private int sampleCounter;
     private final int SAMPLE_COUNTER_DEFAULT = 30;
 
+    private int waitTime = 0;
     private TextView myTV;
 
     private float prevReading;
@@ -36,8 +37,8 @@ public class myFSMY {
         myStates = myFSMY.FSMStates.WAIT;
         mySig = myFSMY.Signatures.UNDETERMINED;
         prevReading=0;
+        waitTime = 0;
         sampleCounter=SAMPLE_COUNTER_DEFAULT;
-
     }
 
     public void activateFSM(float accInput)
@@ -47,16 +48,45 @@ public class myFSMY {
             case WAIT:
                 //myTV.setText(String.format("wait on slope %f",accSlope));
                 //myTV.setText("wait");
-                if (accSlope >=THRESHOLD_UP[0])
+                if (accSlope >=THRESHOLD_UP[0]&&accInput>=THRESHOLD_UP[1])
                 {
                     myStates = myFSMY.FSMStates.RISE;
+                }
+                else if (accSlope <=THRESHOLD_DOWN[0]&&accInput<=THRESHOLD_DOWN[1])
+                {
+                    myStates = myFSMY.FSMStates.FALL;
                 }
                 break;
             case RISE:
                 //myTV.setText("RISE");
-                if (accSlope<=THRESHOLD_UP[1])
+                if (accInput<prevReading)
                 {
                     myStates = myFSMY.FSMStates.STABLE;
+                    mySig =  myFSMY.Signatures.UP;
+                }
+                else
+                {
+                    waitTime++;
+                    if (waitTime>20) {
+                        mySig = Signatures.UNDETERMINED;
+                        myStates = FSMStates.DETERMINED;
+                    }
+
+                }
+                break;
+            case FALL:
+                if (accInput>prevReading)
+                {
+                    myStates = myFSMY.FSMStates.STABLE;
+                    mySig = myFSMY.Signatures.DOWN;
+                }
+                else
+                {
+                    waitTime++;
+                    if (waitTime>20) {
+                        mySig = Signatures.UNDETERMINED;
+                        myStates = FSMStates.DETERMINED;
+                    }
                 }
                 break;
             case STABLE:
@@ -68,18 +98,13 @@ public class myFSMY {
                     myStates = myFSMY.FSMStates.DETERMINED;
                     if (Math.abs(accSlope)<THRESHOLD_UP[2])
                     {
-                        mySig = myFSMY.Signatures.UP;
+
                     }
                     else
                         mySig = myFSMY.Signatures.UNDETERMINED;
                 }
                 break;
             case DETERMINED:
-                if (mySig == myFSMY.Signatures.UNDETERMINED)
-                {
-                    Log.d("myfsm","UNDERTERMINED");
-                }
-                //set textview
                 myTV.setText(mySig.toString());
                 resetFSM();
                 // call resetFSM();

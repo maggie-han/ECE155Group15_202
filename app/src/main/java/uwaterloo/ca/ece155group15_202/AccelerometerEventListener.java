@@ -19,7 +19,7 @@ class AccelerometerEventListener implements SensorEventListener {
     private TextView curr_output,max_output;
     private float max_x=0,max_y=0,max_z=0;
     private float x=0,y=0,z=0,fx=0,fy=0,fz=0;
-    private int C = 5;
+    private int C = 10;
     private LineGraphView graph;
     private ArrayList<String> readingOutput = new ArrayList <String>();         //arraylist of string accelerometer readings
     private TextView motion1,motion2;
@@ -35,7 +35,7 @@ class AccelerometerEventListener implements SensorEventListener {
         motion1 = mo1;
         motion2 = mo2;
         FSM_X = new myFSMX(motion1);
-        FSM_Y = new myFSMY(motion2);
+        FSM_Y = new myFSMY(motion1);
 
     }
 
@@ -55,8 +55,8 @@ class AccelerometerEventListener implements SensorEventListener {
             fy+=(y-fy)/C;
             fz+=(z-fz)/C;
 
-            FSM_X.activateFSM(fx);
             FSM_Y.activateFSM(fy);
+            FSM_X.activateFSM(fx);
 
             String s = String.format("(%.1f,%.1f,%.1f)",fx,fy,fz);
             curr_output.setText(s);
