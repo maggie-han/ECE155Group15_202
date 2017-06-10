@@ -1,6 +1,5 @@
 package uwaterloo.ca.ece155group15_202;
 
-
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -8,16 +7,12 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-
 import android.util.Log;
 import android.view.View;
-
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import ca.uwaterloo.sensortoy.LineGraphView;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -27,17 +22,17 @@ import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
 
-    LinearLayout l1;            //layout used
-    LineGraphView graph;        //graph displaying output
-    ArrayList<String> readingOutput = new ArrayList <String>();         //arraylist of string accelerometer readings
-    File file = null;           //initialize file to write to
-    PrintWriter prt = null;
-    Button myButton;            //myButton records accelerometer readings
+    LinearLayout l1;  // layout used
+    LineGraphView graph;  // graph displaying output
+    ArrayList<String> readingOutput = new ArrayList <>();  // String accelerometer readings
+    File file = null;  // initialize file to write to
+    PrintWriter prt = null;  // initialize writer
+    Button myButton;  // myButton records accelerometer readings
     Button resetButton;
-    TextView arn = null;        //accelerometer record number
-    TextView an = null;         //accelerometer current number
+    TextView arn = null;  // accelerometer record number
+    TextView an = null;  // accelerometer current number
 
-    int filenum = 0;
+    int filenum = 0; // updated for every file created - unique names
     Sensor accelerometer;
     SensorManager sensorManager;
 
@@ -49,13 +44,13 @@ public class MainActivity extends AppCompatActivity {
         l1 = (LinearLayout)findViewById(R.id.layout);
         l1.setOrientation(LinearLayout.VERTICAL);
 
-        //create new instance of reset button
+        // create new instance of reset button
         resetButton = new Button (getApplicationContext());
 
         l1.addView(resetButton);
 
-        //set up textviews for the various sensor readings
-        //some default values for test to see if getting readings
+        // set up textviews for the various sensor readings
+        // some default values for test to see if getting readings
 
         TextView accel = createLabel("The Accelerometer Reading is: ");
         an = createLabel("0.1");

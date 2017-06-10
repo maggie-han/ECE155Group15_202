@@ -8,7 +8,7 @@ import android.widget.TextView;
 
 public class myFSMY {
 
-    enum FSMStates {WAIT,RISE,FALL,STABLE,DETERMINED};
+    enum FSMStates {WAIT, RISE, FALL, STABLE, DETERMINED};
     private myFSMY.FSMStates myStates;
 
     enum Signatures{UP,DOWN,UNDETERMINED};
