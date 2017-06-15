@@ -69,8 +69,9 @@ public class MainActivity extends AppCompatActivity {
         sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
 
 
-        TextView motionx = createLabel("The X Motion is:");
-        TextView motiony = createLabel("The Y motion is:");
+        TextView motionx = createLabel("The Motion is:");
+        motionx.setTextSize(30);
+        TextView motiony = createLabel("");
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         AccelerometerEventListener ael = new AccelerometerEventListener(an,arn,motionx,motiony,graph,readingOutput);
 
