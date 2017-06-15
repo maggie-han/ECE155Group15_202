@@ -9,21 +9,23 @@ import android.widget.TextView;
 
 public class myFSMX {
 
+    // here we initialize the different possible states
     enum FSMStates {WAIT,RISE,FALL,STABLE,DETERMINED};
     private FSMStates myStates;
-
+    // these are the possible outcomes
     enum Signatures{LEFT,RIGHT,UNDETERMINED};
     private Signatures mySig;
-
+    // defining the threshold
     private final float [] THRESHOLD_RIGHT = {0.5f,2.0f,0.2f};
 
     private int sampleCounter;
     private final int SAMPLE_COUNTER_DEFAULT = 30;
     private int waitTime = 0;
     private TextView myTV;
-
+    // the reading before the current one
     private float prevReading;
 
+    // the textview for the output motion
     public myFSMX(TextView tv){
         myStates = FSMStates.WAIT;
         mySig = Signatures.UNDETERMINED;
@@ -32,6 +34,7 @@ public class myFSMX {
         myTV = tv;
     }
 
+    // resetting to the default state, and setting the previous reading to zero
     public void resetFSM(){
         myStates = FSMStates.WAIT;
         mySig = Signatures.UNDETERMINED;
@@ -41,13 +44,15 @@ public class myFSMX {
 
     }
 
+
     public void activateFSM(float accInput)
     {
         float accSlope = accInput-prevReading;
         switch(myStates) {
+            // from the WAIT state to either RISE or FALL dependent on the accSlope and accInput
             case WAIT:
-                //myTV.setText(String.format("wait on slope %f",accSlope));
-                //myTV.setText("wait");
+                // myTV.setText(String.format("wait on slope %f",accSlope));
+                // myTV.setText("wait");
                 if (accSlope >=THRESHOLD_RIGHT[0] && accInput >=THRESHOLD_RIGHT[1])
                 {
                     myStates = myFSMX.FSMStates.RISE;
@@ -57,6 +62,7 @@ public class myFSMX {
                     myStates = myFSMX.FSMStates.FALL;
                 }
                 break;
+            // from the RISE state to either STABLE or back to UNDETERMINED dependent on accInput
             case RISE:
                 //myTV.setText("RISE");
                 if (accInput<prevReading)
@@ -74,6 +80,7 @@ public class myFSMX {
 
                 }
                 break;
+            // from the FALL state to either STABLE or back to UNDETERMINED dependent on accInput
             case FALL:
                 if (accInput>prevReading)
                 {
@@ -89,6 +96,7 @@ public class myFSMX {
                     }
                 }
                 break;
+            // from the STABLE state to either DETERMINED or to UNDETERMINED dependent sampleCounter
             case STABLE:
                 //Log.d("myfsm","STABILIZING");
                 //myTV.setText("Stable");
@@ -104,18 +112,19 @@ public class myFSMX {
                         mySig = myFSMX.Signatures.UNDETERMINED;
                 }
                 break;
+            // once in the DETERMINED state it will either be LEFT, RIGHT, or
             case DETERMINED:
+                // it will be be set as UNDETERMINED unless a state carried through (LEFT or RIGHT)
                 if (mySig!=myFSMX.Signatures.UNDETERMINED)
                     myTV.setText(mySig.toString());
+                // resetting the FSM once the state has been determined
                 resetFSM();
-                // call resetFSM();
                 break;
             default:
                 myTV.setText("reset");
                 resetFSM();
                 break;
         }
-
         prevReading = accInput;
     }
 
