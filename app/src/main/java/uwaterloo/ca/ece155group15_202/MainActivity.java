@@ -1,5 +1,7 @@
 package uwaterloo.ca.ece155group15_202;
 
+import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -9,28 +11,27 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-import ca.uwaterloo.sensortoy.LineGraphView;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class MainActivity extends AppCompatActivity {
 
-    LinearLayout l1;  // layout used
-    LineGraphView graph;  // graph displaying output
+    RelativeLayout l1;  // layout used
     ArrayList<String> readingOutput = new ArrayList <>();  // String accelerometer readings
     File file = null;  // initialize file to write to
     PrintWriter prt = null;  // initialize writer
     Button myButton;  // myButton records accelerometer readings
-    Button resetButton;
-    TextView arn = null;  // accelerometer record number
-    TextView an = null;  // accelerometer current number
 
     int filenum = 0; // updated for every file created - unique names
     Sensor accelerometer;
@@ -41,26 +42,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        l1 = (LinearLayout)findViewById(R.id.layout);
-        l1.setOrientation(LinearLayout.VERTICAL);
 
-        // create new instance of reset button
-        resetButton = new Button (getApplicationContext());
-
-        l1.addView(resetButton);
+        l1 = (RelativeLayout)findViewById(R.id.layout);
+        //l1.setOrientation(LinearLayout.VERTICAL);
 
         // set up textviews for the various sensor readings
         // some default values for test to see if getting readings
-
-        TextView accel = createLabel("The Accelerometer Reading is: ");
-        an = createLabel("0.1");
-        TextView accelRecord = createLabel("The Record-High Accelerometer Reading is: ");
-        arn = createLabel("1.1");
-
-        //display the accelerometer readings
-        graph = new LineGraphView(getApplicationContext(),100, Arrays.asList("x","y","x"));
-        l1.addView(graph);
-        graph.setVisibility(View.VISIBLE);
 
         //******************************SENSOR STUFF***********************************
 
@@ -70,13 +57,16 @@ public class MainActivity extends AppCompatActivity {
 
 
         TextView motionx = createLabel("The Motion is:");
+
         motionx.setTextSize(30);
-        TextView motiony = createLabel("");
+        motionx.setY(1800);
+        motionx.setX(400);
+
+        //l1.addView(motionx);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-        AccelerometerEventListener ael = new AccelerometerEventListener(an,arn,motionx,motiony,graph,readingOutput);
+        AccelerometerEventListener ael = new AccelerometerEventListener(motionx,readingOutput);
 
         sensorManager.registerListener(ael,accelerometer,SensorManager.SENSOR_DELAY_GAME);
-
 
         //record data button
         myButton = new Button (getApplicationContext());
@@ -86,22 +76,25 @@ public class MainActivity extends AppCompatActivity {
                 recordData(prt,readingOutput);
             }
         });
-
-
-        l1.addView(myButton);
         myButton.setText("write csv values");
+        myButton.setX(400);
+        myButton.setY(2000);
+        l1.addView(myButton);
 
-        MyOnClickListener resetListener = new MyOnClickListener(ael);
-        resetButton.setOnClickListener(resetListener);
+        ImageView background = new ImageView(getApplicationContext());
+        background.setImageResource(R.drawable.gameboard);
+        l1.addView(background);
+
+        GameBlock block1 = new GameBlock(getApplicationContext());
+        block1.setImageResource(R.drawable.gameblock2);
+        l1.addView (block1);
 
 
-        resetButton.setText("Reset Record Maximums");
-
-        resetButton.setBackgroundColor(Color.BLUE);
-        resetButton.setTextColor(Color.WHITE);
+        Timer myTimer = new Timer();
+        GameLoopTask myMainLoop = new GameLoopTask(this,background,block1,motionx);
+        myTimer.schedule(myMainLoop,50,50);
 
     }
-
 
     public TextView createLabel (String labelName){
         TextView tv1 = new TextView(getApplicationContext());
@@ -111,7 +104,6 @@ public class MainActivity extends AppCompatActivity {
         l1.addView(tv1);
         return tv1;
     }
-
 
     public void recordData (PrintWriter prt, ArrayList<String> readingOutput)
     {
@@ -148,20 +140,108 @@ public class MainActivity extends AppCompatActivity {
     }
 }
 
+class GameLoopTask extends TimerTask {
+    public Activity myActivity;
+    private ImageView myBackground;
+    private GameBlock myBlock;
+    private TextView direction;
 
-class MyOnClickListener implements View.OnClickListener
-{
-    AccelerometerEventListener sel;
-    public MyOnClickListener(AccelerometerEventListener s) {
-        sel=s;
-    }
 
-    @Override
-    public void onClick(View v)
+    public GameLoopTask(Activity myACT, ImageView background,GameBlock block,TextView dir)
     {
-        sel.resetMax();
-        //read your lovely variable
+        myActivity = myACT;
+        myBackground = background;
+        myBlock = block;
+        myBlock.setPosition(3,3);
+        direction = dir;
     }
 
-};
+    public void run (){
+        if (direction.getText().equals("LEFT")&&myBlock.changedFlag==false)
+        {
+            myBlock.moveLeft();
+        }
+        myActivity.runOnUiThread(
+              new Runnable() {
+                  @Override
+                  public void run() {
+                      if (myBlock.changedFlag)
+                      {
+                          if (myBlock.positionXi==myBlock.positionXf||myBlock.positionYi==myBlock.positionYf)
+                          {
+                              myBlock.changedFlag = false;
+                              myBlock.stop();
+                          }
+                          else
+                          {
+                              myBlock.positionXi+=myBlock.velocityX;
+                              myBlock.positionYi+=myBlock.velocityY;
+                              myBlock.setX(myBlock.positionXi);
+                              myBlock.setY(myBlock.positionYi);
+                          }
+
+                      }
+
+                  }
+              }
+        );
+    }
+
+}
+
+class GameBlock extends ImageView{
+    ImageView block = new ImageView(getContext());
+    public int xi,yi,xf,yf;
+    public int velocityX = 0, velocityY = 0;
+    public int positionXi,positionXf, positionYi,positionYf;
+    public boolean changedFlag=false;
+
+    public GameBlock(Context c){
+        super(c);
+    }
+
+    public void setPosition(int x, int y){
+        xi = x;
+        xf = x;
+        yi = y;
+        yi = y;
+
+        positionXi = xi*360;
+        positionXf = xf*360;
+
+        positionYi = yi*360;
+        positionYf = yf*360;
+
+        block.setImageResource(R.drawable.gameblock2);
+    }
+
+    public void moveLeft(){
+        if (xi>0) {
+            changedFlag=true;
+            xf = xi-1;
+            positionXf = xf*360;
+            velocityX = -5;
+        }
+    }
+
+    public void moveRight(){
+        if (xi<3) {
+            changedFlag=true;
+            xf = xi+1;
+            positionXf = xf*360;
+            velocityX = 5;
+        }
+    }
+
+    public void stop(){
+        velocityX = 0;
+        velocityY = 0;
+        xi = xf;
+        yi = yf;
+        positionXi=positionXf;
+        positionYi=positionYf;
+        changedFlag=false;
+    }
+}
+
 
