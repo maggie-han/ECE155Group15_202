@@ -161,15 +161,21 @@ class GameLoopTask extends TimerTask {
         {
             myBlock.moveLeft();
         }
+        else if (direction.getText().equals("RIGHT")&&myBlock.changedFlag==false)
+        {
+            Log.d("Lab4","movingright");
+
+            myBlock.moveRight();
+        }
         myActivity.runOnUiThread(
               new Runnable() {
                   @Override
                   public void run() {
                       if (myBlock.changedFlag)
                       {
-                          if (myBlock.positionXi==myBlock.positionXf||myBlock.positionYi==myBlock.positionYf)
+                          if (myBlock.positionXi==myBlock.positionXf&&myBlock.positionYi==myBlock.positionYf)
                           {
-                              myBlock.changedFlag = false;
+                              //myBlock.changedFlag = false;
                               myBlock.stop();
                           }
                           else
@@ -226,6 +232,7 @@ class GameBlock extends ImageView{
 
     public void moveRight(){
         if (xi<3) {
+            Log.d("Lab4","Function");
             changedFlag=true;
             xf = xi+1;
             positionXf = xf*360;
