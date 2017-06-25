@@ -29,7 +29,7 @@ class AccelerometerEventListener implements SensorEventListener {
         motionx = mox;
         motiony = moy;
         FSM_X = new myFSMX(motionx);
-        FSM_Y = new myFSMY(motiony);
+        FSM_Y = new myFSMY(motionx);
     }
 
 
