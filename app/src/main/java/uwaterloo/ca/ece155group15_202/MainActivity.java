@@ -4,14 +4,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -20,7 +17,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -62,9 +58,25 @@ public class MainActivity extends AppCompatActivity {
         motionx.setY(1800);
         motionx.setX(400);
 
+
+
+        ImageView background = new ImageView(getApplicationContext());
+        background.setImageResource(R.drawable.board);
+        background.setScaleType(ImageView.ScaleType.FIT_START);
+        //l1.getLayoutParams().width = 1440;
+        //l1.getLayoutParams().height = 1440;
+        l1.addView(background);
+
+        GameBlock block1 = new GameBlock(getApplicationContext());
+        block1.setPosition(2,2);
+        block1.setImageResource(R.drawable.block);
+        block1.setScaleX(0.66f);
+        block1.setScaleY(0.65f);
+        l1.addView (block1);
+
         //l1.addView(motionx);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-        AccelerometerEventListener ael = new AccelerometerEventListener(motionx,readingOutput);
+        AccelerometerEventListener ael = new AccelerometerEventListener(motionx,readingOutput,block1);
 
         sensorManager.registerListener(ael,accelerometer,SensorManager.SENSOR_DELAY_GAME);
 
@@ -81,18 +93,12 @@ public class MainActivity extends AppCompatActivity {
         myButton.setY(2000);
         l1.addView(myButton);
 
-        ImageView background = new ImageView(getApplicationContext());
-        background.setImageResource(R.drawable.gameboard);
-        l1.addView(background);
 
-        GameBlock block1 = new GameBlock(getApplicationContext());
-        block1.setImageResource(R.drawable.gameblock2);
-        l1.addView (block1);
 
 
         Timer myTimer = new Timer();
         GameLoopTask myMainLoop = new GameLoopTask(this,background,block1,motionx);
-        myTimer.schedule(myMainLoop,50,50);
+        myTimer.schedule(myMainLoop,10,10);
 
     }
 
@@ -144,7 +150,6 @@ class GameLoopTask extends TimerTask {
     public Activity myActivity;
     private ImageView myBackground;
     private GameBlock myBlock;
-    private TextView direction;
 
 
     public GameLoopTask(Activity myACT, ImageView background,GameBlock block,TextView dir)
@@ -152,13 +157,13 @@ class GameLoopTask extends TimerTask {
         myActivity = myACT;
         myBackground = background;
         myBlock = block;
-        myBlock.setPosition(3,3);
-        direction = dir;
+        myBlock.setPosition(0,0);
     }
 
     public void run (){
-        if (direction.getText().equals("LEFT")&&myBlock.changedFlag==false)
+        /*if (direction.getText().equals("LEFT")&&myBlock.changedFlag==false)
         {
+            Log.d("Lab4","movingLEFT");
             myBlock.moveLeft();
         }
         else if (direction.getText().equals("RIGHT")&&myBlock.changedFlag==false)
@@ -166,7 +171,7 @@ class GameLoopTask extends TimerTask {
             Log.d("Lab4","movingright");
 
             myBlock.moveRight();
-        }
+        }*/
         myActivity.runOnUiThread(
               new Runnable() {
                   @Override
@@ -175,19 +180,41 @@ class GameLoopTask extends TimerTask {
                       {
                           if (myBlock.positionXi==myBlock.positionXf&&myBlock.positionYi==myBlock.positionYf)
                           {
-                              //myBlock.changedFlag = false;
+                              Log.d("Lab4","STOPPED");
+                              myBlock.changedFlag = false;
                               myBlock.stop();
                           }
                           else
                           {
+                              myBlock.velocityX+=myBlock.ax;
+                              myBlock.velocityY+=myBlock.ay;
                               myBlock.positionXi+=myBlock.velocityX;
                               myBlock.positionYi+=myBlock.velocityY;
+                              if (myBlock.positionXi>360*3+myBlock.offsetx) {
+                                  myBlock.positionXi = 1012;
+                                  myBlock.setX(myBlock.positionXi);
+                                  myBlock.stop();
+                              }
+                              else if (myBlock.positionXi<myBlock.offsetx) {
+                                  myBlock.positionXi = -68;
+                                  myBlock.setX(myBlock.positionXi);
+                                  myBlock.stop();
+                              }
+                              if (myBlock.positionYi>360*3+myBlock.offsety) {
+                                  myBlock.positionYi = 1007;
+                                  myBlock.setY(myBlock.positionYi);
+                                  myBlock.stop();
+                              }
+                              else if (myBlock.positionYi<myBlock.offsety) {
+                                  myBlock.positionYi = -73;
+                                  myBlock.setY(myBlock.positionYi);
+                                  myBlock.stop();
+                              }
                               myBlock.setX(myBlock.positionXi);
                               myBlock.setY(myBlock.positionYi);
                           }
 
                       }
-
                   }
               }
         );
@@ -199,8 +226,12 @@ class GameBlock extends ImageView{
     ImageView block = new ImageView(getContext());
     public int xi,yi,xf,yf;
     public int velocityX = 0, velocityY = 0;
+    public int ax,ay;
     public int positionXi,positionXf, positionYi,positionYf;
     public boolean changedFlag=false;
+
+    public int offsetx = -80;
+    public int offsety = -83;
 
     public GameBlock(Context c){
         super(c);
@@ -210,23 +241,28 @@ class GameBlock extends ImageView{
         xi = x;
         xf = x;
         yi = y;
-        yi = y;
+        yf = y;
 
-        positionXi = xi*360;
-        positionXf = xf*360;
+        positionXi = xi*360+offsetx;
+        positionXf = xf*360+offsetx;
 
-        positionYi = yi*360;
-        positionYf = yf*360;
+        positionYi = yi*360+offsety;
+        positionYf = yf*360+offsety;
 
-        block.setImageResource(R.drawable.gameblock2);
+        this.setX(positionXi);
+        this.setY(positionYi);
+
+        //block.setImageResource(R.drawable.block);
     }
 
     public void moveLeft(){
         if (xi>0) {
+            Log.d("Lab4","FunctionMoveLeft");
             changedFlag=true;
-            xf = xi-1;
-            positionXf = xf*360;
-            velocityX = -5;
+            xf = xi-3;
+            positionXf = xf*360+offsetx;
+            //velocityX = -30;
+            ax = -5;
         }
     }
 
@@ -234,19 +270,43 @@ class GameBlock extends ImageView{
         if (xi<3) {
             Log.d("Lab4","Function");
             changedFlag=true;
-            xf = xi+1;
-            positionXf = xf*360;
-            velocityX = 5;
+            xf = xi+3;
+            positionXf = xf*360+offsetx;
+            //velocityX = 30;
+            ax = 5;
+        }
+    }
+    public void moveUp(){
+        if (yi>0) {
+            changedFlag=true;
+            yf = yi-3;
+            positionYf = yf*360+offsety;
+            //velocityY = -30;
+            ay = -5;
+        }
+    }
+
+    public void moveDown(){
+        if (yi<3) {
+            changedFlag=true;
+            yf = yi+3;
+            positionYf = yf*360+offsety;
+            //velocityY = 30;
+            ay = 5;
         }
     }
 
     public void stop(){
         velocityX = 0;
         velocityY = 0;
+        ax=0;
+        ay=0;
         xi = xf;
         yi = yf;
-        positionXi=positionXf;
-        positionYi=positionYf;
+        positionXi = xi*360+offsetx;
+        positionYi = yi*360+offsety;
+        //positionXi=positionXf;
+        //positionYi=positionYf;
         changedFlag=false;
     }
 }

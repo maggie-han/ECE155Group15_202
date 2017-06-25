@@ -41,7 +41,7 @@ public class myFSMY {
         sampleCounter=SAMPLE_COUNTER_DEFAULT;
     }
 
-    public void activateFSM(float accInput)
+    public void activateFSM(float accInput,GameBlock block)
     {
         float accSlope = accInput-prevReading;
         switch(myStates) {
@@ -106,6 +106,15 @@ public class myFSMY {
                 break;
             case DETERMINED:
                 myTV.setText(mySig.toString());
+                if (mySig==Signatures.UP){
+                    if (block.changedFlag==false)
+                        block.moveUp();
+                }
+                else if (mySig==Signatures.DOWN)
+                {
+                    if (block.changedFlag==false)
+                        block.moveDown();
+                }
                 resetFSM();
                 // call resetFSM();
                 break;

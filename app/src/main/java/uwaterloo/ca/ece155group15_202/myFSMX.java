@@ -45,7 +45,7 @@ public class myFSMX {
     }
 
 
-    public void activateFSM(float accInput)
+    public void activateFSM(float accInput,GameBlock block)
     {
         float accSlope = accInput-prevReading;
         switch(myStates) {
@@ -115,8 +115,16 @@ public class myFSMX {
             // once in the DETERMINED state it will either be LEFT, RIGHT, or
             case DETERMINED:
                 // it will be be set as UNDETERMINED unless a state carried through (LEFT or RIGHT)
-                if (mySig!=myFSMX.Signatures.UNDETERMINED)
+                if (mySig!=myFSMX.Signatures.UNDETERMINED) {
                     myTV.setText(mySig.toString());
+                    if (block.changedFlag==false) {
+                        if (mySig == Signatures.LEFT) {
+                            block.moveLeft();
+                        } else if (mySig == Signatures.RIGHT) {
+                            block.moveRight();
+                        }
+                    }
+                }
                 // resetting the FSM once the state has been determined
                 resetFSM();
                 break;
