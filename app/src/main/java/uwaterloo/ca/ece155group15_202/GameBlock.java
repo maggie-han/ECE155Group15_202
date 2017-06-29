@@ -40,8 +40,10 @@ class GameBlock extends ImageView {
 
 
     //set offset for gameblock due to scaling to keep it within the game grid
-    public int offsetx = -80;
+    public int offsetx = -74;
     public int offsety = -83;
+    //distance between spaces on the grid
+    public int GridBlockSize = 359;
 
     public GameBlock(Context c){
         super(c);
@@ -55,11 +57,11 @@ class GameBlock extends ImageView {
         yf = y;
 
         //set pixel values of the position 360 is the number of pixels between each square
-        positionXi = xi*360+offsetx;
-        positionXf = xf*360+offsetx;
+        positionXi = xi*GridBlockSize+offsetx;
+        positionXf = xf*GridBlockSize+offsetx;
 
-        positionYi = yi*360+offsety;
-        positionYf = yf*360+offsety;
+        positionYi = yi*GridBlockSize+offsety;
+        positionYf = yf*GridBlockSize+offsety;
 
         this.setX(positionXi);
         this.setY(positionYi);
@@ -74,7 +76,7 @@ class GameBlock extends ImageView {
             Log.d("Lab4","FunctionMoveLeft");
             changedFlag=true;
             xf = xi-3; //block moves blocks in the direction indicated as long as it stays on the gameboard
-            positionXf = xf*360+offsetx;
+            positionXf = xf*GridBlockSize+offsetx;
             //velocityX = -30;
             //set initial acceleration of the block
             ax = -5;
@@ -86,7 +88,7 @@ class GameBlock extends ImageView {
             Log.d("Lab4","Function");
             changedFlag=true;
             xf = xi+3;
-            positionXf = xf*360+offsetx;
+            positionXf = xf*GridBlockSize+offsetx;
             //velocityX = 30;
             ax = 5;
         }
@@ -95,7 +97,7 @@ class GameBlock extends ImageView {
         if (yi>0) {
             changedFlag=true;
             yf = yi-3;
-            positionYf = yf*360+offsety;
+            positionYf = yf*GridBlockSize+offsety;
             //velocityY = -30;
             ay = -5;
         }
@@ -105,7 +107,7 @@ class GameBlock extends ImageView {
         if (yi<3) {
             changedFlag=true;
             yf = yi+3;
-            positionYf = yf*360+offsety;
+            positionYf = yf*GridBlockSize+offsety;
             //velocityY = 30;
             ay = 5;
         }
@@ -118,8 +120,8 @@ class GameBlock extends ImageView {
         ay=0;
         xi = xf;
         yi = yf;
-        positionXi = xi*360+offsetx;
-        positionYi = yi*360+offsety;
+        positionXi = xi*GridBlockSize+offsetx;
+        positionYi = yi*GridBlockSize+offsety;
         //positionXi=positionXf;
         //positionYi=positionYf;
         changedFlag=false;

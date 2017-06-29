@@ -65,8 +65,8 @@ class GameLoopTask extends TimerTask {
 
                                 //stop the block if it exceeds the game boarders
                                 //do the same for each direction
-                                if (myBlock.positionXi>360*3+myBlock.offsetx) {
-                                    myBlock.positionXi = 1012;
+                                if (myBlock.positionXi>359*3+myBlock.offsetx) {
+                                    myBlock.positionXi = 1009;
                                     myBlock.setX(myBlock.positionXi);
                                     myBlock.stop();
                                 }
@@ -75,8 +75,8 @@ class GameLoopTask extends TimerTask {
                                     myBlock.setX(myBlock.positionXi);
                                     myBlock.stop();
                                 }
-                                if (myBlock.positionYi>360*3+myBlock.offsety) {
-                                    myBlock.positionYi = 1007;
+                                if (myBlock.positionYi>359*3+myBlock.offsety) {
+                                    myBlock.positionYi = 1004;
                                     myBlock.setY(myBlock.positionYi);
                                     myBlock.stop();
                                 }
