@@ -69,6 +69,56 @@ class GameBlock extends ImageView {
         //block.setImageResource(R.drawable.block);
     }
 
+    public void move(){
+        if (this.changedFlag)
+        {
+            if (this.positionXi==this.positionXf&&this.positionYi==this.positionYf)
+            {
+                //stop the block when it reaches the final x and y coords
+                Log.d("Lab4","STOPPED");
+                //set the changed falg of the block to false indicating it has stopped moving
+                this.changedFlag = false;
+                this.stop();
+            }
+            else
+            {
+                //increase velocity as it traverses the board
+                this.velocityX+=this.ax;
+                this.velocityY+=this.ay;
+
+                //move the block a distance equivalent to the velocity
+                this.positionXi+=this.velocityX;
+                this.positionYi+=this.velocityY;
+
+                //stop the block if it exceeds the game boarders
+                //do the same for each direction
+                if (this.positionXi>359*3+this.offsetx) {
+                    this.positionXi = 1009;
+                    this.setX(this.positionXi);
+                    this.stop();
+                }
+                else if (this.positionXi<this.offsetx) {
+                    this.positionXi = -68;
+                    this.setX(this.positionXi);
+                    this.stop();
+                }
+                if (this.positionYi>359*3+this.offsety) {
+                    this.positionYi = 1004;
+                    this.setY(this.positionYi);
+                    this.stop();
+                }
+                else if (this.positionYi<this.offsety) {
+                    this.positionYi = -73;
+                    this.setY(this.positionYi);
+                    this.stop();
+                }
+                this.setX(this.positionXi);
+                this.setY(this.positionYi);
+            }
+
+        }
+    }
+
     //create functions for moving in directions
     public void moveLeft(){
         //ensure the block is not going to move outside of the board
