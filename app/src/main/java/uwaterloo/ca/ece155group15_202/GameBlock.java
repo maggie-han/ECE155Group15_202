@@ -9,7 +9,7 @@ import android.widget.ImageView;
  */
 
 //create class for gameblock
-class GameBlock extends ImageView {
+class GameBlock extends GameBlockTemplate {
     ImageView block = new ImageView(getContext());
 
     /*create grid (example if left move is called positions could be
@@ -47,6 +47,10 @@ class GameBlock extends ImageView {
 
     public GameBlock(Context c){
         super(c);
+    }
+
+    public void setDestination(){
+
     }
 
     public void setPosition(int x, int y){
