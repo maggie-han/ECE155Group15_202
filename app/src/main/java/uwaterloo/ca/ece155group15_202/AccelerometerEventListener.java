@@ -3,6 +3,7 @@ package uwaterloo.ca.ece155group15_202;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
+import android.util.Log;
 import android.widget.TextView;
 import java.util.ArrayList;
 
@@ -15,16 +16,17 @@ class AccelerometerEventListener implements SensorEventListener {
     private TextView motionx;  // for the display of the direction
     private myFSMX FSM_X;  // the finite state machine responsible for X direction
     private myFSMY FSM_Y;  // for Y direction
-    private GameBlock block;
+    private GameLoopTask block;
 
 
-    public AccelerometerEventListener(TextView mox, ArrayList<String> r,GameBlock b){
+    public AccelerometerEventListener(TextView mox, ArrayList<String> r,GameLoopTask b){
 
         readingOutput = r;
         motionx = mox;
         FSM_X = new myFSMX(motionx);
         FSM_Y = new myFSMY(motionx);
         block = b;
+        Log.d("CreateBlock","accelerometerconstructor");
     }
 
 
@@ -32,8 +34,10 @@ class AccelerometerEventListener implements SensorEventListener {
 
 
     public void onSensorChanged (SensorEvent se){
+        Log.d("CreateBlock","sensor Changed");
         if (se.sensor.getType()==Sensor.TYPE_LINEAR_ACCELERATION)
         {
+
             // raw readings
             x = se.values[0];
             y = se.values[1];
@@ -45,9 +49,10 @@ class AccelerometerEventListener implements SensorEventListener {
             fz+=(z-fz)/C;
 
             // fz is not relevant to the movements, we only look at x and y
+            Log.d("CreateBlock","activateFSM");
             FSM_Y.activateFSM(fy,block);
             FSM_X.activateFSM(fx,block);
-
+            Log.d("CreateBlock","After FSM");
             // format data for output
             String s = String.format("(%.1f,%.1f,%.1f)", fx, fy, fz);
 

@@ -67,20 +67,20 @@ public class MainActivity extends AppCompatActivity {
         l1.addView(background);
 
 
-        //create imageview and instanciate a new gameblock
-        GameBlock block1 = new GameBlock(getApplicationContext());
-        block1.setPosition(2,2);
-        block1.setImageResource(R.drawable.block);
-        block1.setScaleX(0.66f);
-        block1.setScaleY(0.65f);
-        l1.addView (block1);
+
+        //create new timer for animations
+        Timer myTimer = new Timer();
+        GameLoopTask myMainLoop = new GameLoopTask(this,background,getApplicationContext(),l1);
+        myTimer.schedule(myMainLoop,10,10); //schedule 1 move every 10ms (100fps)
+
+        myMainLoop.createBlock();
 
         //l1.addView(motionx);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-        AccelerometerEventListener ael = new AccelerometerEventListener(motionx,readingOutput,block1);
-
+        AccelerometerEventListener ael = new AccelerometerEventListener(motionx,readingOutput, myMainLoop);
+        Log.d("CreateBlock","accelerometer");
         sensorManager.registerListener(ael,accelerometer,SensorManager.SENSOR_DELAY_GAME);
-
+        Log.d("CreateBlock","sensor manager");
         //record data button
         myButton = new Button (getApplicationContext());
         myButton.setOnClickListener(new View.OnClickListener(){
@@ -96,10 +96,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        //create new timer for animations
-        Timer myTimer = new Timer();
-        GameLoopTask myMainLoop = new GameLoopTask(this,background,block1,motionx);
-        myTimer.schedule(myMainLoop,10,10); //schedule 1 move every 10ms (100fps)
+
 
     }
 

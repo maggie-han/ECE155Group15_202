@@ -50,6 +50,7 @@ class GameBlock extends ImageView {
     }
 
     public void setPosition(int x, int y){
+        Log.d("CreateBlock","settingPosition");
         //set initial position values
         xi = x;
         xf = x;
@@ -65,7 +66,7 @@ class GameBlock extends ImageView {
 
         this.setX(positionXi);
         this.setY(positionYi);
-
+        Log.d("CreateBlock","PositionSet");
         //block.setImageResource(R.drawable.block);
     }
 
@@ -125,7 +126,7 @@ class GameBlock extends ImageView {
         if (xi>0) {
             Log.d("Lab4","FunctionMoveLeft");
             changedFlag=true;
-            xf = xi-3; //block moves blocks in the direction indicated as long as it stays on the gameboard
+            xf = 0; //block moves blocks in the direction indicated as long as it stays on the gameboard
             positionXf = xf*GridBlockSize+offsetx;
             //velocityX = -30;
             //set initial acceleration of the block
@@ -137,7 +138,7 @@ class GameBlock extends ImageView {
         if (xi<3) {
             Log.d("Lab4","Function");
             changedFlag=true;
-            xf = xi+3;
+            xf = 3;
             positionXf = xf*GridBlockSize+offsetx;
             //velocityX = 30;
             ax = 5;
@@ -146,7 +147,7 @@ class GameBlock extends ImageView {
     public void moveUp(){
         if (yi>0) {
             changedFlag=true;
-            yf = yi-3;
+            yf = 0;
             positionYf = yf*GridBlockSize+offsety;
             //velocityY = -30;
             ay = -5;
@@ -156,7 +157,7 @@ class GameBlock extends ImageView {
     public void moveDown(){
         if (yi<3) {
             changedFlag=true;
-            yf = yi+3;
+            yf = 3;
             positionYf = yf*GridBlockSize+offsety;
             //velocityY = 30;
             ay = 5;
