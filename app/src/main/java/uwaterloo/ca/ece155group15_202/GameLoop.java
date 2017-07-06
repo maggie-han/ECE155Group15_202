@@ -45,7 +45,7 @@ class GameLoopTask extends TimerTask {
 
     public void createBlock(){
 
-        GameBlock block1 = new GameBlock(myContext);
+        GameBlock block1 = new GameBlock(myContext, myLayout);
         block1.setPosition((int )(Math.random()*3),(int )(Math.random()*3));
         block1.setImageResource(R.drawable.block);
         block1.setScaleX(0.66f);
@@ -62,6 +62,8 @@ class GameLoopTask extends TimerTask {
         }
 
         BlockCount += 1;
+
+
         Log.d("CreateBlock", "Creating new block");
     }
 

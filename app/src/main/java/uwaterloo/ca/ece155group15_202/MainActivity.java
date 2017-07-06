@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         motionx.setX(400);
 
 
+
         //create imageview for game grid
         ImageView background = new ImageView(getApplicationContext());
         background.setImageResource(R.drawable.board);

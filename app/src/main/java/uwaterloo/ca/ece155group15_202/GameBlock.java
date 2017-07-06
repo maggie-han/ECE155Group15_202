@@ -3,6 +3,8 @@ package uwaterloo.ca.ece155group15_202;
 import android.content.Context;
 import android.util.Log;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 /**
  * Created by jack on 2017-06-26.
@@ -11,6 +13,10 @@ import android.widget.ImageView;
 //create class for gameblock
 class GameBlock extends GameBlockTemplate {
     ImageView block = new ImageView(getContext());
+    public int CurrentValue;
+    RelativeLayout mylayout;
+    TextView blockText = new TextView(getContext());
+
 
     /*create grid (example if left move is called positions could be
     _ _0_ _1_ _2_ _3_ _X
@@ -45,14 +51,33 @@ class GameBlock extends GameBlockTemplate {
     //distance between spaces on the grid
     public int GridBlockSize = 359;
 
-    public GameBlock(Context c){
+    public int BlockValue;
+
+    public GameBlock(Context c, RelativeLayout l1){
         super(c);
+        mylayout = l1;
+        blockText.setText(CurrentValue);
+        //blockText.setTextSize(16);
+        blockText.setX(positionXi);
+        blockText.setY(positionYi);
+        l1.addView(blockText);
+
     }
 
     public void setDestination(){
 
     }
+    public void setValue(int value){
+        this.CurrentValue = value;
+        this.blockText.setText(value);
 
+
+    }
+    public void setValue(){
+        int randVal = 2 * (int)(Math.random()*2+1);
+        this.CurrentValue = randVal;
+        this.blockText.setText(randVal);
+    }
     public void setPosition(int x, int y){
         Log.d("CreateBlock","settingPosition");
         //set initial position values
