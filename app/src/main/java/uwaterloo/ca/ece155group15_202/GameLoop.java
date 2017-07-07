@@ -45,7 +45,7 @@ class GameLoopTask extends TimerTask {
     public void createBlock(){
         updateFutureOccupancy();
         GameBlock block1 = new GameBlock(myContext, myLayout);
-        block1.setImageResource(R.drawable.gameblockblueborder);
+
         int tempx, tempy;
         tempx = (int )(Math.random()*3);
         tempy = (int )(Math.random()*3);
@@ -55,7 +55,7 @@ class GameLoopTask extends TimerTask {
             tempy = (int )(Math.random()*3);
         }
         block1.setPosition(tempx,tempy);
-        block1.setImageResource(R.drawable.block);
+        block1.setImageResource(R.drawable.gameblockblueborder);
 
         block1.setScaleX(0.66f);
         block1.setScaleY(0.65f);
