@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         motionx.setX(400);
 
 
+
         //create imageview for game grid
         ImageView background = new ImageView(getApplicationContext());
         background.setImageResource(R.drawable.board);
@@ -73,8 +74,9 @@ public class MainActivity extends AppCompatActivity {
         GameLoopTask myMainLoop = new GameLoopTask(this,background,getApplicationContext(),l1);
         myTimer.schedule(myMainLoop,10,5); //schedule 1 move every 10ms (100fps)
 
-        myMainLoop.createBlock();
 
+        myMainLoop.createBlock();
+        Log.d("CreateBlock","boop");
         //l1.addView(motionx);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         AccelerometerEventListener ael = new AccelerometerEventListener(motionx,readingOutput, myMainLoop);
@@ -94,8 +96,7 @@ public class MainActivity extends AppCompatActivity {
         myButton.setY(2000);
         l1.addView(myButton);
 
-
-
+       
 
 
     }

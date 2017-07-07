@@ -44,7 +44,8 @@ class GameLoopTask extends TimerTask {
 
     public void createBlock(){
         updateFutureOccupancy();
-        GameBlock block1 = new GameBlock(myContext);
+        GameBlock block1 = new GameBlock(myContext, myLayout);
+        block1.setImageResource(R.drawable.gameblockblueborder);
         int tempx, tempy;
         tempx = (int )(Math.random()*3);
         tempy = (int )(Math.random()*3);
@@ -55,8 +56,11 @@ class GameLoopTask extends TimerTask {
         }
         block1.setPosition(tempx,tempy);
         block1.setImageResource(R.drawable.block);
+
         block1.setScaleX(0.66f);
         block1.setScaleY(0.65f);
+        Log.d("TV", "setting random value gameloop");
+        block1.setValue();
         Log.d("CreateBlock", "Before adding");
         //if (allDoneMoving())
             myLayout.addView (block1);
@@ -69,6 +73,8 @@ class GameLoopTask extends TimerTask {
         }
 
         BlockCount += 1;
+
+
         Log.d("CreateBlock", "Creating new block");
         updateOccupancy();
     }
