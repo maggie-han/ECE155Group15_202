@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         //create new timer for animations
         Timer myTimer = new Timer();
         GameLoopTask myMainLoop = new GameLoopTask(this,background,getApplicationContext(),l1);
-        myTimer.schedule(myMainLoop,10,10); //schedule 1 move every 10ms (100fps)
+        myTimer.schedule(myMainLoop,10,5); //schedule 1 move every 10ms (100fps)
 
         myMainLoop.createBlock();
 

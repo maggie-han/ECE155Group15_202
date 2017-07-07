@@ -37,7 +37,6 @@ class AccelerometerEventListener implements SensorEventListener {
         Log.d("CreateBlock","sensor Changed");
         if (se.sensor.getType()==Sensor.TYPE_LINEAR_ACCELERATION)
         {
-
             // raw readings
             x = se.values[0];
             y = se.values[1];

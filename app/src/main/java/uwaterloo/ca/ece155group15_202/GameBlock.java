@@ -40,10 +40,10 @@ class GameBlock extends GameBlockTemplate {
 
 
     //set offset for gameblock due to scaling to keep it within the game grid
-    public int offsetx = -74;
-    public int offsety = -83;
+    public int offsetx = -70;
+    public int offsety = -80;
     //distance between spaces on the grid
-    public int GridBlockSize = 359;
+    public int GridBlockSize = 360;
 
     public GameBlock(Context c){
         super(c);
@@ -88,8 +88,8 @@ class GameBlock extends GameBlockTemplate {
             else
             {
                 //increase velocity as it traverses the board
-                this.velocityX+=this.ax;
-                this.velocityY+=this.ay;
+                //this.velocityX+=this.ax;
+                //this.velocityY+=this.ay;
 
                 //move the block a distance equivalent to the velocity
                 this.positionXi+=this.velocityX;
@@ -97,7 +97,7 @@ class GameBlock extends GameBlockTemplate {
 
                 //stop the block if it exceeds the game boarders
                 //do the same for each direction
-                if (this.positionXi>359*3+this.offsetx) {
+                /*if (this.positionXi>359*3+this.offsetx) {
                     this.positionXi = 1009;
                     this.setX(this.positionXi);
                     this.stop();
@@ -116,7 +116,7 @@ class GameBlock extends GameBlockTemplate {
                     this.positionYi = -73;
                     this.setY(this.positionYi);
                     this.stop();
-                }
+                }*/
                 this.setX(this.positionXi);
                 this.setY(this.positionYi);
             }
@@ -125,45 +125,45 @@ class GameBlock extends GameBlockTemplate {
     }
 
     //create functions for moving in directions
-    public void moveLeft(){
+    public void moveLeft(int occupied){
         //ensure the block is not going to move outside of the board
         if (xi>0) {
             Log.d("Lab4","FunctionMoveLeft");
             changedFlag=true;
-            xf = 0; //block moves blocks in the direction indicated as long as it stays on the gameboard
+            xf = 0+occupied; //block moves blocks in the direction indicated as long as it stays on the gameboard
             positionXf = xf*GridBlockSize+offsetx;
-            //velocityX = -30;
+            velocityX = -10;
             //set initial acceleration of the block
             ax = -5;
         }
     }
 
-    public void moveRight(){
+    public void moveRight(int occupied){
         if (xi<3) {
             Log.d("Lab4","Function");
             changedFlag=true;
-            xf = 3;
+            xf = 3-occupied;
             positionXf = xf*GridBlockSize+offsetx;
-            //velocityX = 30;
+            velocityX = 10;
             ax = 5;
         }
     }
-    public void moveUp(){
+    public void moveUp(int occupied){
         if (yi>0) {
             changedFlag=true;
-            yf = 0;
+            yf = 0+occupied;
             positionYf = yf*GridBlockSize+offsety;
-            //velocityY = -30;
+            velocityY = -10;
             ay = -5;
         }
     }
 
-    public void moveDown(){
+    public void moveDown(int occupied){
         if (yi<3) {
             changedFlag=true;
-            yf = 3;
+            yf = 3-occupied;
             positionYf = yf*GridBlockSize+offsety;
-            //velocityY = 30;
+            velocityY = 10;
             ay = 5;
         }
     }
