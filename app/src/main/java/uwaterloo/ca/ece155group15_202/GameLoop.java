@@ -47,9 +47,11 @@ class GameLoopTask extends TimerTask {
 
         GameBlock block1 = new GameBlock(myContext, myLayout);
         block1.setPosition((int )(Math.random()*3),(int )(Math.random()*3));
-        block1.setImageResource(R.drawable.block);
+        block1.setImageResource(R.drawable.gameblockblueborder);
         block1.setScaleX(0.66f);
         block1.setScaleY(0.65f);
+        Log.d("TV", "setting random value gameloop");
+        block1.setValue();
         Log.d("CreateBlock", "Before adding");
         myLayout.addView (block1);
         Log.d("CreateBlock", "added to view");

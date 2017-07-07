@@ -1,6 +1,8 @@
 package uwaterloo.ca.ece155group15_202;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -13,7 +15,7 @@ import android.widget.TextView;
 //create class for gameblock
 class GameBlock extends GameBlockTemplate {
     ImageView block = new ImageView(getContext());
-    public int CurrentValue;
+    public int CurrentValue = 0;
     RelativeLayout mylayout;
     TextView blockText = new TextView(getContext());
 
@@ -48,6 +50,10 @@ class GameBlock extends GameBlockTemplate {
     //set offset for gameblock due to scaling to keep it within the game grid
     public int offsetx = -74;
     public int offsety = -83;
+
+    //set offset for textview
+    public int ValOffsetX = 200;
+    public int ValOffsetY = 150;
     //distance between spaces on the grid
     public int GridBlockSize = 359;
 
@@ -56,11 +62,15 @@ class GameBlock extends GameBlockTemplate {
     public GameBlock(Context c, RelativeLayout l1){
         super(c);
         mylayout = l1;
-        blockText.setText(CurrentValue);
+        blockText.setText(String.valueOf(CurrentValue));
         //blockText.setTextSize(16);
-        blockText.setX(positionXi);
-        blockText.setY(positionYi);
+        blockText.setX(positionXi + ValOffsetX);
+        blockText.setY(positionYi + ValOffsetY);
+        blockText.bringToFront();
+        blockText.setTextSize(40);
+        blockText.setTextColor(Color.RED);
         l1.addView(blockText);
+
 
     }
 
@@ -68,15 +78,20 @@ class GameBlock extends GameBlockTemplate {
 
     }
     public void setValue(int value){
+        this.BlockValue = value;
         this.CurrentValue = value;
-        this.blockText.setText(value);
+        this.blockText.setText(String.valueOf(value));
+        this.blockText.bringToFront();
 
 
     }
     public void setValue(){
         int randVal = 2 * (int)(Math.random()*2+1);
+        this.BlockValue = randVal;
+        Log.d("TV", "setting random value");
         this.CurrentValue = randVal;
-        this.blockText.setText(randVal);
+        this.blockText.setText(String.valueOf(randVal));
+        this.blockText.bringToFront();
     }
     public void setPosition(int x, int y){
         Log.d("CreateBlock","settingPosition");
@@ -93,6 +108,9 @@ class GameBlock extends GameBlockTemplate {
         positionYi = yi*GridBlockSize+offsety;
         positionYf = yf*GridBlockSize+offsety;
 
+
+        this.blockText.setX(positionXi+ValOffsetX);
+        this.blockText.setY(positionYi+ValOffsetY);
         this.setX(positionXi);
         this.setY(positionYi);
         Log.d("CreateBlock","PositionSet");
@@ -120,30 +138,37 @@ class GameBlock extends GameBlockTemplate {
                 this.positionXi+=this.velocityX;
                 this.positionYi+=this.velocityY;
 
+
                 //stop the block if it exceeds the game boarders
                 //do the same for each direction
                 if (this.positionXi>359*3+this.offsetx) {
                     this.positionXi = 1009;
                     this.setX(this.positionXi);
+                    this.blockText.setX(this.positionXi + ValOffsetX);
                     this.stop();
                 }
                 else if (this.positionXi<this.offsetx) {
                     this.positionXi = -68;
                     this.setX(this.positionXi);
+                    this.blockText.setX(this.positionXi + ValOffsetX);
                     this.stop();
                 }
                 if (this.positionYi>359*3+this.offsety) {
                     this.positionYi = 1004;
                     this.setY(this.positionYi);
+                    this.blockText.setY(this.positionYi + ValOffsetY);
                     this.stop();
                 }
                 else if (this.positionYi<this.offsety) {
                     this.positionYi = -73;
                     this.setY(this.positionYi);
+                    this.blockText.setY(this.positionYi + ValOffsetY);
                     this.stop();
                 }
                 this.setX(this.positionXi);
+                this.blockText.setX(this.positionXi + ValOffsetX);
                 this.setY(this.positionYi);
+                this.blockText.setY(this.positionYi + ValOffsetY);
             }
 
         }

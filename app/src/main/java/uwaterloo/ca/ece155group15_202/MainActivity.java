@@ -73,9 +73,9 @@ public class MainActivity extends AppCompatActivity {
         Timer myTimer = new Timer();
         GameLoopTask myMainLoop = new GameLoopTask(this,background,getApplicationContext(),l1);
         myTimer.schedule(myMainLoop,10,10); //schedule 1 move every 10ms (100fps)
-
+        Log.d("CreateBlock","beep");
         myMainLoop.createBlock();
-
+        Log.d("CreateBlock","boop");
         //l1.addView(motionx);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         AccelerometerEventListener ael = new AccelerometerEventListener(motionx,readingOutput, myMainLoop);
@@ -95,8 +95,7 @@ public class MainActivity extends AppCompatActivity {
         myButton.setY(2000);
         l1.addView(myButton);
 
-
-
+       
 
 
     }
