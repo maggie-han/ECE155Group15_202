@@ -87,7 +87,6 @@ class GameBlock extends GameBlockTemplate {
         this.blockText.setText(String.valueOf(value));
         this.blockText.bringToFront();
 
-
     }
     //same as set value but creates random value
     public void setValue(){

@@ -43,20 +43,30 @@ class GameLoopTask extends TimerTask {
     }
 
     public void createBlock(){
-
-        updateFutureOccupancy();//add the new block to the list of spaces that are to be occupied after the turn
-        GameBlock block1 = new GameBlock(myContext, myLayout); //create new gameblock instance
-
-
-        int tempx, tempy;
-        tempx = (int )(Math.random()*3);
-        tempy = (int )(Math.random()*3);
-        while (willBeOccupied[tempx][tempy])
-        {
-            tempx = (int )(Math.random()*3);
-            tempy = (int )(Math.random()*3);
+        updateFutureOccupancy();
+        int spots = 0;
+        int spotsLeft [][] = new int [16-BlockCount][2];
+        for (int i = 0;i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                if (willBeOccupied[i][j] == false) {
+                    spotsLeft[spots][0] = i;
+                    spotsLeft[spots][1] = j;
+                    spots++;
+                }
+            }
         }
-        block1.setPosition(tempx,tempy);
+        if (spots!=(16-BlockCount))
+        {
+            String msg = String.format("Spots: %d, BlockCount: %d",spots,BlockCount);
+            Log.d("counting",msg);
+        }
+        if (spots==0)
+            return;
+        GameBlock block1 = new GameBlock(myContext, myLayout);
+
+        int tempSpot = (int)(Math.random()*(spots-1));
+
+        block1.setPosition(spotsLeft[tempSpot][0],spotsLeft[tempSpot][1]);
         block1.setImageResource(R.drawable.gameblockblueborder);
 
         block1.setScaleX(0.66f);
