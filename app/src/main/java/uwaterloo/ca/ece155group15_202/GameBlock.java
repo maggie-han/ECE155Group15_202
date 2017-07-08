@@ -86,7 +86,6 @@ class GameBlock extends GameBlockTemplate {
         this.blockText.setText(String.valueOf(value));
         this.blockText.bringToFront();
 
-
     }
     public void setValue(){
         int randVal = 2 * (int)(Math.random()*2+1);
