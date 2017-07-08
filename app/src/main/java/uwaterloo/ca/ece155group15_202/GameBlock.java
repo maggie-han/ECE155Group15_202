@@ -15,10 +15,10 @@ import android.widget.TextView;
 //create class for gameblock
 class GameBlock extends GameBlockTemplate {
     ImageView block = new ImageView(getContext());
-    public int CurrentValue = 0;
+
     RelativeLayout mylayout;
     TextView blockText = new TextView(getContext());
-
+    public int BlockValue = 0;
 
     /*create grid (example if left move is called positions could be
     _ _0_ _1_ _2_ _3_ _X
@@ -60,12 +60,12 @@ class GameBlock extends GameBlockTemplate {
     //distance between spaces on the grid
     public int GridBlockSize = 360;
 
-    public int BlockValue;
+
 
     public GameBlock(Context c, RelativeLayout l1){
         super(c);
         mylayout = l1;
-        blockText.setText(String.valueOf(CurrentValue));
+        blockText.setText(String.valueOf(BlockValue));
         //blockText.setTextSize(16);
         blockText.setX(positionXi + ValOffsetX);
         blockText.setY(positionYi + ValOffsetY);
@@ -80,19 +80,21 @@ class GameBlock extends GameBlockTemplate {
     public void setDestination(){
 
     }
+
+    //@param value: value you wish the blocks textview to be set to.
     public void setValue(int value){
         this.BlockValue = value;
-        this.CurrentValue = value;
         this.blockText.setText(String.valueOf(value));
         this.blockText.bringToFront();
 
 
     }
+    //same as set value but creates random value
     public void setValue(){
         int randVal = 2 * (int)(Math.random()*2+1);
         this.BlockValue = randVal;
         Log.d("TV", "setting random value");
-        this.CurrentValue = randVal;
+
         this.blockText.setText(String.valueOf(randVal));
         this.blockText.bringToFront();
     }
@@ -176,15 +178,28 @@ class GameBlock extends GameBlockTemplate {
 
         }
     }
+    public int getBlockValue(){
+        return this.BlockValue;
+    }
 
-    //create functions for moving in directions
+    public int getFinalPositionX(){
+
+        return this.xf;
+    }
+    public int getFinalPOsitionY(){
+        return this.yf;
+    }
+
+
+
+    //create functions for moving in directions (is the same for all move(direction) functions, assume identical operation
     public void moveLeft(int occupied){
         //ensure the block is not going to move outside of the board
         if (xi>0) {
             Log.d("Lab4","FunctionMoveLeft");
             changedFlag=true;
-            xf = 0+occupied; //block moves blocks in the direction indicated as long as it stays on the gameboard
-            positionXf = xf*GridBlockSize+offsetx;
+            xf = 0+occupied; //block moves blocks in the direction indicated as long as it stays on the gameboard, takes into account number of occupied blocks between it asn the gameboarder
+            positionXf = xf*GridBlockSize+offsetx; // set the final position by multiplying block pixel width by the number of positions it needs to move.
             velocityX = -10;
             //set initial acceleration of the block
             ax = -5;
@@ -226,13 +241,13 @@ class GameBlock extends GameBlockTemplate {
         velocityY = 0;
         ax=0;
         ay=0;
-        xi = xf;
+        xi = xf; //set final x and y to be the current x and y
         yi = yf;
         positionXi = xi*GridBlockSize+offsetx;
         positionYi = yi*GridBlockSize+offsety;
         //positionXi=positionXf;
         //positionYi=positionYf;
-        changedFlag=false;
+        changedFlag=false; //flag to tell whether the blocks are moving to prevent inputs while the blocks are already in motion.
     }
 }
 

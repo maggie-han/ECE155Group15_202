@@ -43,8 +43,10 @@ class GameLoopTask extends TimerTask {
     }
 
     public void createBlock(){
-        updateFutureOccupancy();
-        GameBlock block1 = new GameBlock(myContext, myLayout);
+
+        updateFutureOccupancy();//add the new block to the list of spaces that are to be occupied after the turn
+        GameBlock block1 = new GameBlock(myContext, myLayout); //create new gameblock instance
+
 
         int tempx, tempy;
         tempx = (int )(Math.random()*3);
