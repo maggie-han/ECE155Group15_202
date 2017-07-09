@@ -46,6 +46,7 @@ class GameBlock extends GameBlockTemplate {
     //boolean TRUE if block is moving; FALSE if stationary (prevents input when block is already moving)
     public boolean changedFlag=false;
 
+    public boolean toRemove = false;
 
     //set offset for gameblock due to scaling to keep it within the game grid
 
@@ -127,13 +128,14 @@ class GameBlock extends GameBlockTemplate {
             if (this.positionXi==this.positionXf&&this.positionYi==this.positionYf)
             {
                 //stop the block when it reaches the final x and y coords
-                Log.d("Lab4","STOPPED");
+                Log.d("LEFT","STOPPED");
                 //set the changed falg of the block to false indicating it has stopped moving
                 this.changedFlag = false;
                 this.stop();
             }
             else
             {
+                Log.d("LEFT","moving");
                 //increase velocity as it traverses the board
                 //this.velocityX+=this.ax;
                 //this.velocityY+=this.ay;
@@ -192,16 +194,17 @@ class GameBlock extends GameBlockTemplate {
 
 
     //create functions for moving in directions (is the same for all move(direction) functions, assume identical operation
-    public void moveLeft(int occupied){
+    public void moveLeft(int occupied,int merged){
         //ensure the block is not going to move outside of the board
         if (xi>0) {
             Log.d("Lab4","FunctionMoveLeft");
             changedFlag=true;
-            xf = 0+occupied; //block moves blocks in the direction indicated as long as it stays on the gameboard, takes into account number of occupied blocks between it asn the gameboarder
+            xf = 0+occupied-merged; //block moves blocks in the direction indicated as long as it stays on the gameboard, takes into account number of occupied blocks between it asn the gameboarder
             positionXf = xf*GridBlockSize+offsetx; // set the final position by multiplying block pixel width by the number of positions it needs to move.
             velocityX = -10;
             //set initial acceleration of the block
             ax = -5;
+            Log.d("Lab4","FunctionFinishLeft");
         }
     }
 

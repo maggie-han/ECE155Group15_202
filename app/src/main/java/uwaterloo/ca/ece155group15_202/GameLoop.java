@@ -21,6 +21,7 @@ class GameLoopTask extends TimerTask {
     private ImageView myBackground;
     private GameBlock myBlock;
     public LinkedList<GameBlock>  BlockList = new LinkedList<>();
+    //public GameBlock[][]BlockList = new GameBlock[4][4];
     public int BlockCount = 0;
 
     public enum gameDirection{UP,DOWN,LEFT,RIGHT};
@@ -43,9 +44,11 @@ class GameLoopTask extends TimerTask {
     }
 
     public void createBlock(){
+        Log.d("LEFT","in createBlock");
         updateFutureOccupancy();
+        Log.d("LEFT","after updateFutureOccupancy");
         int spots = 0;
-        int spotsLeft [][] = new int [16-BlockCount][2];
+        int spotsLeft [][] = new int [16][2];
         for (int i = 0;i < 4; i++) {
             for (int j = 0; j < 4; j++) {
                 if (willBeOccupied[i][j] == false) {
@@ -77,12 +80,11 @@ class GameLoopTask extends TimerTask {
         //if (allDoneMoving())
             myLayout.addView (block1);
         Log.d("CreateBlock", "added to view");
-        if(BlockCount == 0){
+        if(BlockCount == 0)
             BlockList.addFirst(block1);
-        }
-        else{
+        else
             BlockList.add(block1);
-        }
+
 
         BlockCount += 1;
 
@@ -99,6 +101,7 @@ class GameLoopTask extends TimerTask {
                 isOccupied[i][j]=false;
             }
         }
+
         for (GameBlock Block: BlockList)
         {
             isOccupied[Block.xi][Block.yi]=true;
@@ -117,6 +120,7 @@ class GameLoopTask extends TimerTask {
         {
             willBeOccupied[Block.xf][Block.yf]=true;
         }
+        Log.d("LEFT","inside updatefutureoccupancy");
     }
 
     public boolean allDoneMoving(){
@@ -156,14 +160,20 @@ class GameLoopTask extends TimerTask {
                     for (GameBlock Block : BlockList) {
                         String msg = String.format("Block :" + Block.xi + " " + Block.yi + " LEFT " + numOccupied(Block.xi, Block.yi, 3));
                         Log.d("moving", msg);
-                        Block.moveLeft(numOccupied(Block.xi, Block.yi, 3));
+                        if (numMerges(Block.xi,Block.yi,3)!=0) {
+                            String msg2 = String.format(" number: %d",numMerges(Block.xi,Block.yi,3));
+                            Log.d("LEFT", msg2);
+                        }
+                        Block.moveLeft(numOccupied(Block.xi, Block.yi, 3),numMerges(Block.xi,Block.yi,3));
                     }
                     break;
             }
             updateOccupancy();
+            Log.d("LEFT", "Updated Occupancy");
             if (BlockCount < 16) {
                 createBlock();
             }
+            Log.d("LEFT", "create block");
         }
     }
 
@@ -202,6 +212,106 @@ class GameLoopTask extends TimerTask {
         return num;
 
     }
+
+    public int numMerges(int x, int y, int direction)
+    {
+        updateOccupancy();
+        int num = 0;
+        switch(direction){
+            case 0: //up
+                break;
+            case 1: //right
+                break;
+            case 2: //down
+            case 3: //left
+                if (x==1)
+                {
+                    if (valueAtPosition(0,y)==valueAtPosition(1,y))
+                    {
+                        blockAtPosition(1,y).toRemove=true;
+                        num++;
+                    }
+                }
+                else if (x==2)
+                {
+                    if (valueAtPosition(0,y)==valueAtPosition(1,y)&&isOccupied[1][y])
+                    {
+                        blockAtPosition(1,y).toRemove=true;
+                        num++;
+                    }
+                    else if (valueAtPosition(1,y)==valueAtPosition(2,y))
+                    {
+                        blockAtPosition(2,y).toRemove=true;
+                        num++;
+                    }
+                    else if (valueAtPosition(0,y)==valueAtPosition(2,y)&&(isOccupied[1][y]==false))
+                    {
+                        blockAtPosition(2,y).toRemove=true;
+                        num++;
+                    }
+                }
+                else if (x==3)
+                {
+                    if (valueAtPosition(0,y)==valueAtPosition(1,y)&&isOccupied[1][y])
+                    {
+                        blockAtPosition(1,y).toRemove=true;
+                        num++;
+                        if (valueAtPosition(2,y)==valueAtPosition(3,y)) {
+                            num++;
+                            blockAtPosition(3,y).toRemove=true;
+                        }
+                    }
+                    else if (valueAtPosition(1,y)==valueAtPosition(2,y)&&isOccupied[2][y])
+                    {
+                        blockAtPosition(2,y).toRemove=true;
+                        num++;
+                    }
+                    else if (valueAtPosition(0,y)==valueAtPosition(2,y)&&(isOccupied[1][y]==false))
+                    {
+                        blockAtPosition(2,y).toRemove=true;
+                        num++;
+                    }
+                    else if (valueAtPosition(0,y)==valueAtPosition(3,y)&&(isOccupied[1][y]==false)&&(isOccupied[2][y]==false))
+                    {
+                        blockAtPosition(3,y).toRemove=true;
+                        num++;
+                    }
+                    else if (valueAtPosition(1,y)==valueAtPosition(3,y)&&(isOccupied[2][y]==false))
+                    {
+                        blockAtPosition(3,y).toRemove=true;
+                        num++;
+                    }
+                    else if (valueAtPosition(2,y)==valueAtPosition(3,y))
+                    {
+                        blockAtPosition(3,y).toRemove=true;
+                        num++;
+                    }
+                }
+                break;
+        }
+        return num;
+    }
+
+    public int valueAtPosition(int x, int y)
+    {
+        for (GameBlock block:BlockList)
+        {
+            if (block.xi==x && block.yi==y)
+                return block.getBlockValue();
+        }
+        return -1;
+    }
+
+    public GameBlock blockAtPosition(int x, int y)
+    {
+        for (GameBlock block:BlockList)
+        {
+            if (block.xi==x && block.yi==y)
+                return block;
+        }
+        return null;
+    }
+
     public void run (){
         myActivity.runOnUiThread(
                 new Runnable() {
@@ -210,6 +320,46 @@ class GameLoopTask extends TimerTask {
                         Log.d("CreateBlock","run");
                         for (GameBlock Block : BlockList) {
                             Block.move();
+                        }
+                        if (allDoneMoving())
+                        {
+                            /*int index = 0;
+                            for (GameBlock block:BlockList)
+                            {
+                                String i = String.format("Index: %d",index);
+                                if (block.toRemove)
+                                {
+                                    Log.d("LEFT",i);
+                                    Log.d("LEFT","first remove view");
+                                    myLayout.removeView(block.blockText);
+                                    Log.d("LEFT","2nd remove view");
+                                    myLayout.removeView(block);
+                                    Log.d("LEFT","3rd remove view");
+                                    BlockList.remove(index);
+                                    Log.d("LEFT","blocklist");
+                                    BlockCount--;
+                                    Log.d("LEFT","blockcount");
+
+                                    index--;
+                                }
+                                index++;
+                            }*/
+                            for (int i = 0; i< BlockCount; i++)
+                            {
+                                String s = String.format("Index: %d",i);
+                                if(BlockList.get(i).toRemove)
+                                {
+                                    Log.d("LEFT",s);
+                                    myLayout.removeView(BlockList.get(i).blockText);
+                                    myLayout.removeView(BlockList.get(i));
+                                    BlockList.remove(i);
+                                    Log.d("LEFT","blocklistRemove");
+                                    i--;
+                                    BlockCount--;
+                                    Log.d("LEFT","finished");
+                                }
+                            }
+                            Log.d("LEFT","finish to delete");
                         }
                     }
                 }
