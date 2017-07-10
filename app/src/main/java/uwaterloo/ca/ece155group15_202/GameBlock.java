@@ -74,9 +74,8 @@ class GameBlock extends GameBlockTemplate {
         blockText.setY(positionYi + ValOffsetY);
         blockText.bringToFront();
         blockText.setTextSize(40);
-        blockText.setTextColor(Color.RED);
+        blockText.setTextColor(Color.GREEN);
         l1.addView(blockText);
-
 
     }
 
@@ -216,30 +215,30 @@ class GameBlock extends GameBlockTemplate {
         }
     }
 
-    public void moveRight(int occupied){
+    public void moveRight(int occupied,int merged){
         if (xi<3) {
             Log.d("Lab4","Function");
             changedFlag=true;
-            xf = 3-occupied;
+            xf = 3-occupied+merged;
             positionXf = xf*GridBlockSize+offsetx;
             velocityX = 10;
             ax = 5;
         }
     }
-    public void moveUp(int occupied){
+    public void moveUp(int occupied,int merged){
         if (yi>0) {
             changedFlag=true;
-            yf = 0+occupied;
+            yf = 0+occupied-merged;
             positionYf = yf*GridBlockSize+offsety;
             velocityY = -10;
             ay = -5;
         }
     }
 
-    public void moveDown(int occupied){
+    public void moveDown(int occupied,int merged){
         if (yi<3) {
             changedFlag=true;
-            yf = 3-occupied;
+            yf = 3-occupied+merged;
             positionYf = yf*GridBlockSize+offsety;
             velocityY = 10;
             ay = 5;

@@ -68,10 +68,13 @@ public class MainActivity extends AppCompatActivity {
         l1.addView(background);
 
 
+        TextView endGame = createLabel("");
+        endGame.setX(400);
+        endGame.setY(1400);
 
         //create new timer for animations
         Timer myTimer = new Timer();
-        GameLoopTask myMainLoop = new GameLoopTask(this,background,getApplicationContext(),l1);
+        GameLoopTask myMainLoop = new GameLoopTask(this,background,getApplicationContext(),l1,endGame);
         myTimer.schedule(myMainLoop,10,5); //schedule 1 move every 10ms (100fps)
 
 
