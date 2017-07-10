@@ -219,15 +219,24 @@ class GameLoopTask extends TimerTask {
         int num = 0;
         switch(direction){
             case 0: //up
-                break;
+                return 0;
+                //break;
             case 1: //right
-                break;
+               /*
+               find the next thing, if they are the same, delete and merge
+
+                */
+                return 0;
+                //break;
             case 2: //down
+                return 0;
+                //break;
             case 3: //left
                 if (x==1)
                 {
                     if (valueAtPosition(0,y)==valueAtPosition(1,y))
                     {
+                        blockAtPosition(0,y).futureValue=blockAtPosition(0,y).BlockValue*2;
                         blockAtPosition(1,y).toRemove=true;
                         num++;
                     }
@@ -236,16 +245,19 @@ class GameLoopTask extends TimerTask {
                 {
                     if (valueAtPosition(0,y)==valueAtPosition(1,y)&&isOccupied[1][y])
                     {
+                        blockAtPosition(0,y).futureValue=blockAtPosition(0,y).BlockValue*2;
                         blockAtPosition(1,y).toRemove=true;
                         num++;
                     }
                     else if (valueAtPosition(1,y)==valueAtPosition(2,y))
                     {
+                        blockAtPosition(1,y).futureValue=blockAtPosition(1,y).BlockValue*2;
                         blockAtPosition(2,y).toRemove=true;
                         num++;
                     }
                     else if (valueAtPosition(0,y)==valueAtPosition(2,y)&&(isOccupied[1][y]==false))
                     {
+                        blockAtPosition(0,y).futureValue=blockAtPosition(0,y).BlockValue*2;
                         blockAtPosition(2,y).toRemove=true;
                         num++;
                     }
@@ -254,35 +266,43 @@ class GameLoopTask extends TimerTask {
                 {
                     if (valueAtPosition(0,y)==valueAtPosition(1,y)&&isOccupied[1][y])
                     {
+                        blockAtPosition(0,y).futureValue=blockAtPosition(0,y).BlockValue*2;
                         blockAtPosition(1,y).toRemove=true;
                         num++;
-                        if (valueAtPosition(2,y)==valueAtPosition(3,y)) {
+                        if (valueAtPosition(2,y)==valueAtPosition(3,y)&&isOccupied[2][y])
+                        {
+                            blockAtPosition(2,y).futureValue=blockAtPosition(2,y).BlockValue*2;
                             num++;
                             blockAtPosition(3,y).toRemove=true;
                         }
                     }
                     else if (valueAtPosition(1,y)==valueAtPosition(2,y)&&isOccupied[2][y])
                     {
+                        blockAtPosition(1,y).futureValue=blockAtPosition(1,y).BlockValue*2;
                         blockAtPosition(2,y).toRemove=true;
                         num++;
                     }
-                    else if (valueAtPosition(0,y)==valueAtPosition(2,y)&&(isOccupied[1][y]==false))
+                    else if (valueAtPosition(2,y)==valueAtPosition(3,y)&&isOccupied[3][y])
                     {
+                        blockAtPosition(2,y).futureValue=blockAtPosition(2,y).BlockValue*2;
+                        blockAtPosition(3,y).toRemove=true;
+                        num++;
+                    }
+                    else if (valueAtPosition(0,y)==valueAtPosition(2,y)&&(isOccupied[1][y]==false)&&isOccupied[2][y])
+                    {
+                        blockAtPosition(0,y).futureValue=blockAtPosition(0,y).BlockValue*2;
                         blockAtPosition(2,y).toRemove=true;
                         num++;
                     }
-                    else if (valueAtPosition(0,y)==valueAtPosition(3,y)&&(isOccupied[1][y]==false)&&(isOccupied[2][y]==false))
+                    else if (valueAtPosition(1,y)==valueAtPosition(3,y)&&(isOccupied[2][y]==false)&&isOccupied[3][y])
                     {
+                        blockAtPosition(1,y).futureValue=blockAtPosition(1,y).BlockValue*2;
                         blockAtPosition(3,y).toRemove=true;
                         num++;
                     }
-                    else if (valueAtPosition(1,y)==valueAtPosition(3,y)&&(isOccupied[2][y]==false))
+                    else if (valueAtPosition(0,y)==valueAtPosition(3,y)&&(isOccupied[1][y]==false)&&(isOccupied[2][y]==false)&&isOccupied[3][y])
                     {
-                        blockAtPosition(3,y).toRemove=true;
-                        num++;
-                    }
-                    else if (valueAtPosition(2,y)==valueAtPosition(3,y))
-                    {
+                        blockAtPosition(0,y).futureValue=blockAtPosition(0,y).BlockValue*2;
                         blockAtPosition(3,y).toRemove=true;
                         num++;
                     }
@@ -347,6 +367,7 @@ class GameLoopTask extends TimerTask {
                             for (int i = 0; i< BlockCount; i++)
                             {
                                 String s = String.format("Index: %d",i);
+                                GameBlock temp = BlockList.get(i);
                                 if(BlockList.get(i).toRemove)
                                 {
                                     Log.d("LEFT",s);
@@ -357,6 +378,10 @@ class GameLoopTask extends TimerTask {
                                     i--;
                                     BlockCount--;
                                     Log.d("LEFT","finished");
+                                }
+                                else if (temp.futureValue>temp.BlockValue)
+                                {
+                                    temp.setValue(temp.futureValue);
                                 }
                             }
                             Log.d("LEFT","finish to delete");

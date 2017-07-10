@@ -19,6 +19,7 @@ class GameBlock extends GameBlockTemplate {
     RelativeLayout mylayout;
     TextView blockText = new TextView(getContext());
     public int BlockValue = 0;
+    public int futureValue = 0;
 
     /*create grid (example if left move is called positions could be
     _ _0_ _1_ _2_ _3_ _X
@@ -67,6 +68,7 @@ class GameBlock extends GameBlockTemplate {
         super(c);
         mylayout = l1;
         blockText.setText(String.valueOf(BlockValue));
+        futureValue=BlockValue;
         //blockText.setTextSize(16);
         blockText.setX(positionXi + ValOffsetX);
         blockText.setY(positionYi + ValOffsetY);
@@ -85,6 +87,7 @@ class GameBlock extends GameBlockTemplate {
     //@param value: value you wish the blocks textview to be set to.
     public void setValue(int value){
         this.BlockValue = value;
+        this.futureValue = value;
         this.blockText.setText(String.valueOf(value));
         this.blockText.bringToFront();
 
@@ -93,6 +96,7 @@ class GameBlock extends GameBlockTemplate {
     public void setValue(){
         int randVal = 2 * (int)(Math.random()*2+1);
         this.BlockValue = randVal;
+        this.futureValue = randVal;
         Log.d("TV", "setting random value");
 
         this.blockText.setText(String.valueOf(randVal));
@@ -181,6 +185,10 @@ class GameBlock extends GameBlockTemplate {
     }
     public int getBlockValue(){
         return this.BlockValue;
+    }
+
+    public void setFutureValue(int v){
+        this.futureValue=v;
     }
 
     public int getFinalPositionX(){
