@@ -24,15 +24,13 @@ class GameLoopTask extends TimerTask {
     private GameBlock myBlock;
     public LinkedList<GameBlock>  BlockList = new LinkedList<>();
     private int endGameState=0; //-1 : fail, 0: playing, 1: game finished
-    private TextView endGame;
-    //public GameBlock[][]BlockList = new GameBlock[4][4];
-    public int BlockCount = 0;
+    private TextView endGame; //textview for displaying game end conditions
+    public int BlockCount = 0; //keeps track of the number of blocks in total
 
-    public enum gameDirection{UP,DOWN,LEFT,RIGHT};
-    public gameDirection currentGameDirection;
     Context myContext;
     RelativeLayout myLayout;
 
+    //Keeps track of which place on board is currently occupied and will be occupied
     public boolean [][]isOccupied=  {{false,false,false,false}, {false,false,false,false},{false,false,false,false},{false,false,false,false}};
     public boolean [][]willBeOccupied=  {{false,false,false,false}, {false,false,false,false},{false,false,false,false},{false,false,false,false}};
 
@@ -42,48 +40,47 @@ class GameLoopTask extends TimerTask {
         endGame = e;
         myActivity = myACT;
         myBackground = background;
-        //myBlock.setPosition((int )(Math.random()*3),(int )(Math.random()*3));
         myContext = c;
         myLayout = l;
         Log.d("CreateBlock", "Creating GameLoopTask");
     }
 
     public void isGameFinished(){
-        for (GameBlock block:BlockList)
+        for (GameBlock block:BlockList) //navigate through lift
         {
-            if (block.BlockValue==256)
+            if (block.BlockValue==256) //if any block reach the success value
             {
-                endGameState =1;
+                endGameState =1;  //end game state is WIN
             }
         }
-        if (endGameState==0)
+        if (endGameState==0)    //if the flag says the game keeps playing
         {
-            if (BlockCount==16)
+            if (BlockCount==16) //check the number of blocks on board. if it is full
             {
                 int mergeCount = 0;
-                for (int i = 0; i < 4; i++)
+                for (int i = 0; i < 4; i++) //determine if there are possible moves
                 {
                     mergeCount+=numMergesCheck(0,i,1); //check if possible right merge
                     mergeCount+=numMergesCheck(i,0,2); //check if possible down merge
                 }
-                if (mergeCount==0)
+                if (mergeCount==0)  //no possible moves, fail
                     endGameState =-1;
             }
         }
 
-        if (endGameState==-1)
+        if (endGameState==-1) //display textview for failure
         {
             endGame.setText(":'( YOU FAILED");
             endGame.setTextColor(Color.RED);
             endGame.setTextSize(36);
         }
-        else if (endGameState==1)
+        else if (endGameState==1) //display textview for success
         {
             endGame.setText("YOU WIN!");
             endGame.setTextColor(Color.GREEN);
             endGame.setTextSize(36);
         }
-        else
+        else    //keep the textview empty
         {
             endGame.setText("");
             endGame.setTextColor(Color.GREEN);
@@ -93,13 +90,12 @@ class GameLoopTask extends TimerTask {
 
 
     public void createBlock(){
-        Log.d("LEFT","in createBlock");
-        updateFutureOccupancy();
-        Log.d("LEFT","after updateFutureOccupancy");
+        updateFutureOccupancy();        //check of the places are occupied, update the occupancy arrays
+
         int spots = 0;
         int spotsLeft [][] = new int [16][2];
         for (int i = 0;i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
+            for (int j = 0; j < 4; j++) { //compute the number of spots left and populate them in an array for random generation
                 if (willBeOccupied[i][j] == false) {
                     spotsLeft[spots][0] = i;
                     spotsLeft[spots][1] = j;
@@ -107,39 +103,44 @@ class GameLoopTask extends TimerTask {
                 }
             }
         }
-        if (spots!=(16-BlockCount))
+        if (spots!=(16-BlockCount)) //disreptancy in number of blocks: error check
         {
             String msg = String.format("Spots: %d, BlockCount: %d",spots,BlockCount);
             Log.d("counting",msg);
         }
-        if (spots==0)
+        if (spots==0)   //no spots means no more block creation, return now before any new blocks are created
             return;
         GameBlock block1 = new GameBlock(myContext, myLayout);
 
-        int tempSpot = (int)(Math.random()*(spots-1));
+        int tempSpot = (int)(Math.random()*(spots-1)); //random generate block spot
 
-        block1.setPosition(spotsLeft[tempSpot][0],spotsLeft[tempSpot][1]);
-        block1.setImageResource(R.drawable.gameblockblueborder);
+        block1.setPosition(spotsLeft[tempSpot][0],spotsLeft[tempSpot][1]);//match the RNG result with position
+        block1.setImageResource(R.drawable.gameblockblueborder);    //image resource for given block
 
+        //rescale the images
         block1.setScaleX(0.66f);
         block1.setScaleY(0.65f);
         Log.d("TV", "setting random value gameloop");
+
+        //randomly generate a block value
         block1.setValue();
+
+        //add the block to the layout
         Log.d("CreateBlock", "Before adding");
-        //if (allDoneMoving())
-            myLayout.addView (block1);
+        myLayout.addView (block1);
         Log.d("CreateBlock", "added to view");
+
+        //add the block to the linked list
         if(BlockCount == 0)
             BlockList.addFirst(block1);
         else
             BlockList.add(block1);
 
-
+        //increment the blockcount
         BlockCount += 1;
 
-
         Log.d("CreateBlock", "Creating new block");
-        updateOccupancy();
+        updateOccupancy(); //update where the blocks are
     }
 
     public void updateOccupancy(){
@@ -147,116 +148,114 @@ class GameLoopTask extends TimerTask {
         {
             for (int j = 0; j < 4; j++)
             {
-                isOccupied[i][j]=false;
+                isOccupied[i][j]=false; //first set all spots to false
             }
         }
 
-        for (GameBlock Block: BlockList)
+        for (GameBlock Block: BlockList) //whenever there's a block, change occupancy to true
         {
             isOccupied[Block.xi][Block.yi]=true;
         }
     }
 
-    public void updateFutureOccupancy(){
+    public void updateFutureOccupancy(){ //flag according to the future occupancy
         for (int i = 0; i<4;i++)
         {
             for (int j = 0; j < 4; j++)
             {
-                willBeOccupied[i][j]=false;
+                willBeOccupied[i][j]=false; //initialize all spots to false
             }
         }
         for (GameBlock Block: BlockList)
         {
-            willBeOccupied[Block.xf][Block.yf]=true;
+            willBeOccupied[Block.xf][Block.yf]=true; //set where the blocks will be in the future
         }
-        Log.d("LEFT","inside updatefutureoccupancy");
     }
 
-    public boolean allDoneMoving(){
+    public boolean allDoneMoving(){ //returns true if all blocks are in their final positions and they have finished animation
         for (GameBlock Block: BlockList)
         {
             if (Block.changedFlag)
-                return false;
+                return false; //if any is not finished, return false
         }
         return true;
     }
 
-    public void setDirection(int direction){
-        if (allDoneMoving()) {
+    public void setDirection(int direction){//accepts direction, 0 = up, 1=right, 2 = down, 3 = left
+        if (allDoneMoving()) { //only accepts set direction if all blocks have finished their previous animation
             switch (direction) {
                 case 0:
                     for (GameBlock Block : BlockList) {
                         String msg = String.format("Block :" + Block.xi + " " + Block.yi + " UP " + numOccupied(Block.xi, Block.yi, 0));
-                        Log.d("moving", msg);
+                        Log.d("moving", msg); //debugging message
+                        //move all blocks by their direction, passing in the number of occupied spots before them, and the number of merges before them
                         Block.moveUp(numOccupied(Block.xi, Block.yi, 0),numMerges(Block.xi,Block.yi,0));
                     }
                     break;
                 case 1:
                     for (GameBlock Block : BlockList) {
                         String msg = String.format("Block :" + Block.xi + " " + Block.yi + " RIGHT " + numOccupied(Block.xi, Block.yi, 1));
-                        Log.d("moving", msg);
+                        Log.d("moving", msg);//debugging message
+                        //move all blocks by their direction, passing in the number of occupied spots before them, and the number of merges before them
                         Block.moveRight(numOccupied(Block.xi, Block.yi, 1),numMerges(Block.xi,Block.yi,1));
                     }
                     break;
                 case 2:
                     for (GameBlock Block : BlockList) {
                         String msg = String.format("Block :" + Block.xi + " " + Block.yi + " DOWN " + numOccupied(Block.xi, Block.yi, 2));
-                        Log.d("moving", msg);
+                        Log.d("moving", msg);//debugging message
+                        //move all blocks by their direction, passing in the number of occupied spots before them, and the number of merges before them
                         Block.moveDown(numOccupied(Block.xi, Block.yi, 2),numMerges(Block.xi,Block.yi,2));
                     }
                     break;
                 case 3:
                     for (GameBlock Block : BlockList) {
                         String msg = String.format("Block :" + Block.xi + " " + Block.yi + " LEFT " + numOccupied(Block.xi, Block.yi, 3));
-                        Log.d("moving", msg);
-                        if (numMerges(Block.xi,Block.yi,3)!=0) {
-                            String msg2 = String.format(" number: %d",numMerges(Block.xi,Block.yi,3));
-                            Log.d("LEFT", msg2);
-                        }
+                        Log.d("moving", msg);//debugging message
+                        //move all blocks by their direction, passing in the number of occupied spots before them, and the number of merges before them
                         Block.moveLeft(numOccupied(Block.xi, Block.yi, 3),numMerges(Block.xi,Block.yi,3));
                     }
                     break;
             }
-            updateOccupancy();
+            updateOccupancy(); //after moving all blocks, update their corresponding position
             Log.d("LEFT", "Updated Occupancy");
-            if (BlockCount < 16) {
+            if (BlockCount < 16) { //if we have spots for new blocks, every move create a new block
                 createBlock();
-                BlockList.getLast().setVisibility(View.INVISIBLE);
-                BlockList.getLast().blockText.setVisibility(View.INVISIBLE);
+                BlockList.getLast().setVisibility(View.INVISIBLE);  //set invisible until all other animation finish
+                BlockList.getLast().blockText.setVisibility(View.INVISIBLE); //set textview to invisible as well
             }
-            Log.d("LEFT", "create block");
         }
     }
 
-    public int numOccupied(int x, int y, int direction)
+    public int numOccupied(int x, int y, int direction) //given the position and the direction, compute the number of blocks in the way to help offset the position
     {
-        updateOccupancy();
-        int num = 0;
+        updateOccupancy(); //first update where the blocks are occupied
+        int num = 0; //assume none, update accordingly
         switch(direction){
             case 0: //up
                 for (int i = 0; i<y; i++)
                 {
                     if (isOccupied[x][i])
-                        num++;
+                        num++;//for each block in the direction, increment counter
                 }
                 break;
             case 1: //right
                 for (int i = 3 ; i > x; i--)
                 {
                     if (isOccupied[i][y])
-                        num++;
+                        num++;//for each block in the direction, increment counter
                 }
                 break;
             case 2: //down
                 for (int i = 3; i>y; i--)
                     if (isOccupied[x][i])
-                        num++;
+                        num++;//for each block in the direction, increment counter
                 break;
             case 3: //left
                 for (int i = 0 ; i < x; i++)
                 {
                     if (isOccupied[i][y])
-                        num++;
+                        num++;//for each block in the direction, increment counter
                 }
                 break;
         }
@@ -264,325 +263,325 @@ class GameLoopTask extends TimerTask {
 
     }
 
-    public int numMerges(int x, int y, int direction)
+    public int numMerges(int x, int y, int direction) //given the position and the direction, compute the number of merges in the way to help offset the position
     {
         updateOccupancy();
         int num = 0;
         switch(direction){
             case 0: //up
-                if (y==1)
+                if (y==1) //determine where our block is located
                 {
                     if (valueAtPosition(x,0)==valueAtPosition(x,1))
                     {
-                        blockAtPosition(x,0).futureValue=blockAtPosition(x,0).BlockValue*2;
-                        blockAtPosition(x,1).toRemove=true;
+                        blockAtPosition(x,0).futureValue=blockAtPosition(x,0).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(x,1).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                 }
-                else if (y==2)
+                else if (y==2)//determine where our block is located
                 {
                     if (valueAtPosition(x,0)==valueAtPosition(x,1)&&isOccupied[x][1])
                     {
-                        blockAtPosition(x,0).futureValue=blockAtPosition(x,0).BlockValue*2;
-                        blockAtPosition(x,1).toRemove=true;
+                        blockAtPosition(x,0).futureValue=blockAtPosition(x,0).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(x,1).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                     else if (valueAtPosition(x,1)==valueAtPosition(x,2))
                     {
-                        blockAtPosition(x,1).futureValue=blockAtPosition(x,1).BlockValue*2;
-                        blockAtPosition(x,2).toRemove=true;
+                        blockAtPosition(x,1).futureValue=blockAtPosition(x,1).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(x,2).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                     else if (valueAtPosition(x,0)==valueAtPosition(x,2)&&(isOccupied[x][1]==false))
                     {
-                        blockAtPosition(x,0).futureValue=blockAtPosition(x,0).BlockValue*2;
-                        blockAtPosition(x,2).toRemove=true;
+                        blockAtPosition(x,0).futureValue=blockAtPosition(x,0).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(x,2).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                 }
-                else if (y==3)
+                else if (y==3)//determine where our block is located
                 {
                     if (valueAtPosition(x,0)==valueAtPosition(x,1)&&isOccupied[x][1])
                     {
-                        blockAtPosition(x,0).futureValue=blockAtPosition(x,0).BlockValue*2;
-                        blockAtPosition(x,1).toRemove=true;
+                        blockAtPosition(x,0).futureValue=blockAtPosition(x,0).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(x,1).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                         if (valueAtPosition(x,2)==valueAtPosition(x,3)&&isOccupied[x][2])
                         {
-                            blockAtPosition(x,2).futureValue=blockAtPosition(x,2).BlockValue*2;
+                            blockAtPosition(x,2).futureValue=blockAtPosition(x,2).BlockValue*2;//increment the overlapping value
                             num++;
-                            blockAtPosition(x,3).toRemove=true;
+                            blockAtPosition(x,3).toRemove=true;                                //flag the repeated block to be deleted
                         }
                     }
                     else if (valueAtPosition(x,1)==valueAtPosition(x,2)&&isOccupied[x][2])
                     {
-                        blockAtPosition(x,1).futureValue=blockAtPosition(x,1).BlockValue*2;
-                        blockAtPosition(x,2).toRemove=true;
+                        blockAtPosition(x,1).futureValue=blockAtPosition(x,1).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(x,2).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                     else if (valueAtPosition(x,2)==valueAtPosition(x,3)&&isOccupied[x][3])
                     {
-                        blockAtPosition(x,2).futureValue=blockAtPosition(x,2).BlockValue*2;
-                        blockAtPosition(x,3).toRemove=true;
+                        blockAtPosition(x,2).futureValue=blockAtPosition(x,2).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(x,3).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                     else if (valueAtPosition(x,0)==valueAtPosition(x,2)&&(isOccupied[x][1]==false)&&isOccupied[x][2])
                     {
-                        blockAtPosition(x,0).futureValue=blockAtPosition(x,0).BlockValue*2;
-                        blockAtPosition(x,2).toRemove=true;
+                        blockAtPosition(x,0).futureValue=blockAtPosition(x,0).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(x,2).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                     else if (valueAtPosition(x,1)==valueAtPosition(x,3)&&(isOccupied[x][2]==false)&&isOccupied[x][3])
                     {
-                        blockAtPosition(x,1).futureValue=blockAtPosition(x,1).BlockValue*2;
-                        blockAtPosition(x,3).toRemove=true;
+                        blockAtPosition(x,1).futureValue=blockAtPosition(x,1).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(x,3).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                     else if (valueAtPosition(x,0)==valueAtPosition(x,3)&&(isOccupied[x][1]==false)&&(isOccupied[x][2]==false)&&isOccupied[x][3])
                     {
-                        blockAtPosition(x,0).futureValue=blockAtPosition(x,0).BlockValue*2;
-                        blockAtPosition(x,3).toRemove=true;
+                        blockAtPosition(x,0).futureValue=blockAtPosition(x,0).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(x,3).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                 }
                 break;
             case 1: //right
-                if (x==2)
+                if (x==2)//determine where our block is located
                 {
                     if (valueAtPosition(3,y)==valueAtPosition(2,y))
                     {
-                        blockAtPosition(3,y).futureValue=blockAtPosition(3,y).BlockValue*2;
-                        blockAtPosition(2,y).toRemove=true;
+                        blockAtPosition(3,y).futureValue=blockAtPosition(3,y).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(2,y).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                 }
-                else if (x==1)
+                else if (x==1)//determine where our block is located
                 {
                     if (valueAtPosition(3,y)==valueAtPosition(2,y)&&isOccupied[2][y])
                     {
-                        blockAtPosition(3,y).futureValue=blockAtPosition(3,y).BlockValue*2;
-                        blockAtPosition(2,y).toRemove=true;
+                        blockAtPosition(3,y).futureValue=blockAtPosition(3,y).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(2,y).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                     else if (valueAtPosition(2,y)==valueAtPosition(1,y))
                     {
-                        blockAtPosition(2,y).futureValue=blockAtPosition(2,y).BlockValue*2;
-                        blockAtPosition(1,y).toRemove=true;
+                        blockAtPosition(2,y).futureValue=blockAtPosition(2,y).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(1,y).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                     else if (valueAtPosition(3,y)==valueAtPosition(1,y)&&(isOccupied[2][y]==false))
                     {
-                        blockAtPosition(3,y).futureValue=blockAtPosition(3,y).BlockValue*2;
-                        blockAtPosition(1,y).toRemove=true;
+                        blockAtPosition(3,y).futureValue=blockAtPosition(3,y).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(1,y).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                 }
                 else if (x==0)
-                {
+                {//determine where our block is located
                     if (valueAtPosition(3,y)==valueAtPosition(2,y)&&isOccupied[2][y])
                     {
-                        blockAtPosition(3,y).futureValue=blockAtPosition(3,y).BlockValue*2;
-                        blockAtPosition(2,y).toRemove=true;
+                        blockAtPosition(3,y).futureValue=blockAtPosition(3,y).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(2,y).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                         if (valueAtPosition(1,y)==valueAtPosition(0,y)&&isOccupied[1][y])
                         {
-                            blockAtPosition(1,y).futureValue=blockAtPosition(1,y).BlockValue*2;
+                            blockAtPosition(1,y).futureValue=blockAtPosition(1,y).BlockValue*2;//increment the overlapping value
                             num++;
-                            blockAtPosition(0,y).toRemove=true;
+                            blockAtPosition(0,y).toRemove=true;                                //flag the repeated block to be deleted
                         }
                     }
                     else if (valueAtPosition(2,y)==valueAtPosition(1,y)&&isOccupied[1][y])
                     {
-                        blockAtPosition(2,y).futureValue=blockAtPosition(2,y).BlockValue*2;
-                        blockAtPosition(1,y).toRemove=true;
+                        blockAtPosition(2,y).futureValue=blockAtPosition(2,y).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(1,y).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                     else if (valueAtPosition(1,y)==valueAtPosition(0,y)&&isOccupied[0][y])
                     {
-                        blockAtPosition(1,y).futureValue=blockAtPosition(1,y).BlockValue*2;
-                        blockAtPosition(0,y).toRemove=true;
+                        blockAtPosition(1,y).futureValue=blockAtPosition(1,y).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(0,y).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                     else if (valueAtPosition(3,y)==valueAtPosition(2,y)&&(isOccupied[1][y]==false)&&isOccupied[1][y])
                     {
-                        blockAtPosition(3,y).futureValue=blockAtPosition(3,y).BlockValue*2;
-                        blockAtPosition(1,y).toRemove=true;
+                        blockAtPosition(3,y).futureValue=blockAtPosition(3,y).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(1,y).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                     else if (valueAtPosition(2,y)==valueAtPosition(0,y)&&(isOccupied[1][y]==false)&&isOccupied[0][y])
                     {
-                        blockAtPosition(2,y).futureValue=blockAtPosition(2,y).BlockValue*2;
-                        blockAtPosition(0,y).toRemove=true;
+                        blockAtPosition(2,y).futureValue=blockAtPosition(2,y).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(0,y).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                     else if (valueAtPosition(3,y)==valueAtPosition(0,y)&&(isOccupied[2][y]==false)&&(isOccupied[1][y]==false)&&isOccupied[0][y])
                     {
-                        blockAtPosition(3,y).futureValue=blockAtPosition(3,y).BlockValue*2;
-                        blockAtPosition(0,y).toRemove=true;
+                        blockAtPosition(3,y).futureValue=blockAtPosition(3,y).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(0,y).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                 }
                 break;
                 //break;
             case 2: //down
-                if (y==2)
+                if (y==2)//determine where our block is located
                 {
                     if (valueAtPosition(x,3)==valueAtPosition(x,2))
                     {
-                        blockAtPosition(x,3).futureValue=blockAtPosition(x,3).BlockValue*2;
-                        blockAtPosition(x,2).toRemove=true;
+                        blockAtPosition(x,3).futureValue=blockAtPosition(x,3).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(x,2).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                 }
-                else if (y==1)
+                else if (y==1)//determine where our block is located
                 {
                     if (valueAtPosition(x,3)==valueAtPosition(x,2)&&isOccupied[x][2])
                     {
-                        blockAtPosition(x,3).futureValue=blockAtPosition(x,3).BlockValue*2;
-                        blockAtPosition(x,2).toRemove=true;
+                        blockAtPosition(x,3).futureValue=blockAtPosition(x,3).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(x,2).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                     else if (valueAtPosition(x,2)==valueAtPosition(x,1))
                     {
-                        blockAtPosition(x,2).futureValue=blockAtPosition(x,2).BlockValue*2;
-                        blockAtPosition(x,1).toRemove=true;
+                        blockAtPosition(x,2).futureValue=blockAtPosition(x,2).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(x,1).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                     else if (valueAtPosition(x,3)==valueAtPosition(x,1)&&(isOccupied[x][2]==false))
                     {
-                        blockAtPosition(x,3).futureValue=blockAtPosition(x,3).BlockValue*2;
-                        blockAtPosition(x,1).toRemove=true;
+                        blockAtPosition(x,3).futureValue=blockAtPosition(x,3).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(x,1).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                 }
-                else if (y==0)
+                else if (y==0)//determine where our block is located
                 {
                     if (valueAtPosition(x,3)==valueAtPosition(x,2)&&isOccupied[x][2])
                     {
-                        blockAtPosition(x,3).futureValue=blockAtPosition(x,3).BlockValue*2;
-                        blockAtPosition(x,2).toRemove=true;
+                        blockAtPosition(x,3).futureValue=blockAtPosition(x,3).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(x,2).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                         if (valueAtPosition(x,1)==valueAtPosition(x,0)&&isOccupied[x][1])
                         {
-                            blockAtPosition(x,1).futureValue=blockAtPosition(x,1).BlockValue*2;
+                            blockAtPosition(x,1).futureValue=blockAtPosition(x,1).BlockValue*2;//increment the overlapping value
                             num++;
-                            blockAtPosition(x,0).toRemove=true;
+                            blockAtPosition(x,0).toRemove=true;                                //flag the repeated block to be deleted
                         }
                     }
                     else if (valueAtPosition(x,2)==valueAtPosition(x,1)&&isOccupied[x][1])
                     {
-                        blockAtPosition(x,2).futureValue=blockAtPosition(x,2).BlockValue*2;
-                        blockAtPosition(x,1).toRemove=true;
+                        blockAtPosition(x,2).futureValue=blockAtPosition(x,2).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(x,1).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                     else if (valueAtPosition(x,1)==valueAtPosition(x,0)&&isOccupied[x][0])
                     {
-                        blockAtPosition(x,1).futureValue=blockAtPosition(x,1).BlockValue*2;
-                        blockAtPosition(x,0).toRemove=true;
+                        blockAtPosition(x,1).futureValue=blockAtPosition(x,1).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(x,0).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                     else if (valueAtPosition(x,3)==valueAtPosition(x,1)&&(isOccupied[x][2]==false)&&isOccupied[x][1])
                     {
-                        blockAtPosition(x,3).futureValue=blockAtPosition(x,3).BlockValue*2;
-                        blockAtPosition(x,1).toRemove=true;
+                        blockAtPosition(x,3).futureValue=blockAtPosition(x,3).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(x,1).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                     else if (valueAtPosition(x,2)==valueAtPosition(x,0)&&(isOccupied[x][1]==false)&&isOccupied[x][0])
                     {
-                        blockAtPosition(x,2).futureValue=blockAtPosition(x,2).BlockValue*2;
-                        blockAtPosition(x,0).toRemove=true;
+                        blockAtPosition(x,2).futureValue=blockAtPosition(x,2).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(x,0).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                     else if (valueAtPosition(x,3)==valueAtPosition(x,0)&&(isOccupied[x][2]==false)&&(isOccupied[x][1]==false)&&isOccupied[x][0])
                     {
-                        blockAtPosition(x,3).futureValue=blockAtPosition(x,3).BlockValue*2;
-                        blockAtPosition(x,0).toRemove=true;
+                        blockAtPosition(x,3).futureValue=blockAtPosition(x,3).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(x,0).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                 }
                 break;
             case 3: //left
-                if (x==1)
+                if (x==1)//determine where our block is located
                 {
                     if (valueAtPosition(0,y)==valueAtPosition(1,y))
                     {
-                        blockAtPosition(0,y).futureValue=blockAtPosition(0,y).BlockValue*2;
-                        blockAtPosition(1,y).toRemove=true;
+                        blockAtPosition(0,y).futureValue=blockAtPosition(0,y).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(1,y).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                 }
-                else if (x==2)
+                else if (x==2)//determine where our block is located
                 {
                     if (valueAtPosition(0,y)==valueAtPosition(1,y)&&isOccupied[1][y])
                     {
-                        blockAtPosition(0,y).futureValue=blockAtPosition(0,y).BlockValue*2;
-                        blockAtPosition(1,y).toRemove=true;
+                        blockAtPosition(0,y).futureValue=blockAtPosition(0,y).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(1,y).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                     else if (valueAtPosition(1,y)==valueAtPosition(2,y))
                     {
-                        blockAtPosition(1,y).futureValue=blockAtPosition(1,y).BlockValue*2;
-                        blockAtPosition(2,y).toRemove=true;
+                        blockAtPosition(1,y).futureValue=blockAtPosition(1,y).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(2,y).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                     else if (valueAtPosition(0,y)==valueAtPosition(2,y)&&(isOccupied[1][y]==false))
                     {
-                        blockAtPosition(0,y).futureValue=blockAtPosition(0,y).BlockValue*2;
-                        blockAtPosition(2,y).toRemove=true;
+                        blockAtPosition(0,y).futureValue=blockAtPosition(0,y).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(2,y).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                 }
-                else if (x==3)
+                else if (x==3)//determine where our block is located
                 {
                     if (valueAtPosition(0,y)==valueAtPosition(1,y)&&isOccupied[1][y])
                     {
-                        blockAtPosition(0,y).futureValue=blockAtPosition(0,y).BlockValue*2;
-                        blockAtPosition(1,y).toRemove=true;
+                        blockAtPosition(0,y).futureValue=blockAtPosition(0,y).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(1,y).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                         if (valueAtPosition(2,y)==valueAtPosition(3,y)&&isOccupied[2][y])
                         {
-                            blockAtPosition(2,y).futureValue=blockAtPosition(2,y).BlockValue*2;
+                            blockAtPosition(2,y).futureValue=blockAtPosition(2,y).BlockValue*2;//increment the overlapping value
                             num++;
-                            blockAtPosition(3,y).toRemove=true;
+                            blockAtPosition(3,y).toRemove=true;                                //flag the repeated block to be deleted
                         }
                     }
                     else if (valueAtPosition(1,y)==valueAtPosition(2,y)&&isOccupied[2][y])
                     {
-                        blockAtPosition(1,y).futureValue=blockAtPosition(1,y).BlockValue*2;
-                        blockAtPosition(2,y).toRemove=true;
+                        blockAtPosition(1,y).futureValue=blockAtPosition(1,y).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(2,y).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                     else if (valueAtPosition(2,y)==valueAtPosition(3,y)&&isOccupied[3][y])
                     {
-                        blockAtPosition(2,y).futureValue=blockAtPosition(2,y).BlockValue*2;
-                        blockAtPosition(3,y).toRemove=true;
+                        blockAtPosition(2,y).futureValue=blockAtPosition(2,y).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(3,y).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                     else if (valueAtPosition(0,y)==valueAtPosition(2,y)&&(isOccupied[1][y]==false)&&isOccupied[2][y])
                     {
-                        blockAtPosition(0,y).futureValue=blockAtPosition(0,y).BlockValue*2;
-                        blockAtPosition(2,y).toRemove=true;
+                        blockAtPosition(0,y).futureValue=blockAtPosition(0,y).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(2,y).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                     else if (valueAtPosition(1,y)==valueAtPosition(3,y)&&(isOccupied[2][y]==false)&&isOccupied[3][y])
                     {
-                        blockAtPosition(1,y).futureValue=blockAtPosition(1,y).BlockValue*2;
-                        blockAtPosition(3,y).toRemove=true;
+                        blockAtPosition(1,y).futureValue=blockAtPosition(1,y).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(3,y).toRemove=true;                                //flag the repeated block to be deleted
                         num++;
                     }
                     else if (valueAtPosition(0,y)==valueAtPosition(3,y)&&(isOccupied[1][y]==false)&&(isOccupied[2][y]==false)&&isOccupied[3][y])
                     {
-                        blockAtPosition(0,y).futureValue=blockAtPosition(0,y).BlockValue*2;
-                        blockAtPosition(3,y).toRemove=true;
+                        blockAtPosition(0,y).futureValue=blockAtPosition(0,y).BlockValue*2;//increment the overlapping value
+                        blockAtPosition(3,y).toRemove=true;                                 //flag the repeated block to be deleted
                         num++;
                     }
                 }
                 break;
         }
-        return num;
+        return num;//return the number of merges ahead
     }
 
-    public int numMergesCheck(int x, int y, int direction)
+    public int numMergesCheck(int x, int y, int direction) //check for the number of merges, but does not actually flag anything to be merged or edit their values
     {
         updateOccupancy();
         int num = 0;
@@ -590,22 +589,22 @@ class GameLoopTask extends TimerTask {
             case 0: //up
                 if (y==1)
                 {
-                    if (valueAtPosition(x,0)==valueAtPosition(x,1))
+                    if (valueAtPosition(x,0)==valueAtPosition(x,1)) //first merge
                     {
                         num++;
                     }
                 }
                 else if (y==2)
                 {
-                    if (valueAtPosition(x,0)==valueAtPosition(x,1)&&isOccupied[x][1])
+                    if (valueAtPosition(x,0)==valueAtPosition(x,1)&&isOccupied[x][1]) //first merge
                     {
                         num++;
                     }
-                    else if (valueAtPosition(x,1)==valueAtPosition(x,2))
+                    else if (valueAtPosition(x,1)==valueAtPosition(x,2)) //second merge only if first is not possible
                     {
                         num++;
                     }
-                    else if (valueAtPosition(x,0)==valueAtPosition(x,2)&&(isOccupied[x][1]==false))
+                    else if (valueAtPosition(x,0)==valueAtPosition(x,2)&&(isOccupied[x][1]==false)) //need to make sure blank square do not get merged
                     {
                         num++;
                     }
@@ -812,7 +811,7 @@ class GameLoopTask extends TimerTask {
         return num;
     }
 
-    public int valueAtPosition(int x, int y)
+    public int valueAtPosition(int x, int y) //returns the value of the block at the given position
     {
         for (GameBlock block:BlockList)
         {
@@ -822,14 +821,14 @@ class GameLoopTask extends TimerTask {
         return -1;
     }
 
-    public GameBlock blockAtPosition(int x, int y)
+    public GameBlock blockAtPosition(int x, int y) //returns reference to the block at the given location
     {
         for (GameBlock block:BlockList)
         {
             if (block.xi==x && block.yi==y)
                 return block;
         }
-        return null;
+        return null;        //if there are no block at given position
     }
 
     public void run (){
@@ -841,53 +840,29 @@ class GameLoopTask extends TimerTask {
                         for (GameBlock Block : BlockList) {
                             Block.move();
                         }
-                        if (allDoneMoving())
+                        if (allDoneMoving())    //if all animation is finished, update with new values and delete the blocks flagged to be deleted
                         {
-                            /*int index = 0;
-                            for (GameBlock block:BlockList)
-                            {
-                                String i = String.format("Index: %d",index);
-                                if (block.toRemove)
-                                {
-                                    Log.d("LEFT",i);
-                                    Log.d("LEFT","first remove view");
-                                    myLayout.removeView(block.blockText);
-                                    Log.d("LEFT","2nd remove view");
-                                    myLayout.removeView(block);
-                                    Log.d("LEFT","3rd remove view");
-                                    BlockList.remove(index);
-                                    Log.d("LEFT","blocklist");
-                                    BlockCount--;
-                                    Log.d("LEFT","blockcount");
-
-                                    index--;
-                                }
-                                index++;
-                            }*/
                             for (int i = 0; i< BlockCount; i++)
                             {
                                 String s = String.format("Index: %d",i);
                                 GameBlock temp = BlockList.get(i);
-                                if(BlockList.get(i).toRemove)
+                                if(BlockList.get(i).toRemove) //if it is flagged to be deleted
                                 {
-                                    Log.d("LEFT",s);
-                                    myLayout.removeView(BlockList.get(i).blockText);
-                                    myLayout.removeView(BlockList.get(i));
-                                    BlockList.remove(i);
-                                    Log.d("LEFT","blocklistRemove");
+                                    myLayout.removeView(BlockList.get(i).blockText); //remove the block textview
+                                    myLayout.removeView(BlockList.get(i));//remove the block
+                                    BlockList.remove(i); //remove such from the linkedlist
                                     i--;
                                     BlockCount--;
-                                    Log.d("LEFT","finished");
+                                    //decrease corresponding index and blockcount
                                 }
-                                else if (temp.futureValue>temp.BlockValue)
+                                else if (temp.futureValue>temp.BlockValue)  //if new values are being updated
                                 {
                                     temp.setValue(temp.futureValue);
                                 }
                             }
-                            BlockList.getLast().setVisibility(View.VISIBLE);
-                            BlockList.getLast().blockText.setVisibility(View.VISIBLE);
-                            Log.d("LEFT","finish to delete");
-                            isGameFinished();
+                            BlockList.getLast().setVisibility(View.VISIBLE); //turn the newly created block to visible
+                            BlockList.getLast().blockText.setVisibility(View.VISIBLE);//turn the newly created block text to visible
+                            isGameFinished();   //check for end game conditions
                         }
                     }
                 }

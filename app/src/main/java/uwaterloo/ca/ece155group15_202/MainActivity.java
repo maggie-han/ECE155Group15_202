@@ -40,7 +40,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         l1 = (RelativeLayout)findViewById(R.id.layout);
-        //l1.setOrientation(LinearLayout.VERTICAL);
 
         // set up textviews for the various sensor readings
         // some default values for test to see if getting readings
@@ -63,11 +62,9 @@ public class MainActivity extends AppCompatActivity {
         ImageView background = new ImageView(getApplicationContext());
         background.setImageResource(R.drawable.board);
         background.setScaleType(ImageView.ScaleType.FIT_START);
-        //l1.getLayoutParams().width = 1440;
-        //l1.getLayoutParams().height = 1440;
         l1.addView(background);
 
-
+        //the textview to indicate game success/fail. Initially set to blank to avoid confusion
         TextView endGame = createLabel("");
         endGame.setX(400);
         endGame.setY(1400);
@@ -75,17 +72,16 @@ public class MainActivity extends AppCompatActivity {
         //create new timer for animations
         Timer myTimer = new Timer();
         GameLoopTask myMainLoop = new GameLoopTask(this,background,getApplicationContext(),l1,endGame);
-        myTimer.schedule(myMainLoop,10,5); //schedule 1 move every 10ms (100fps)
+        myTimer.schedule(myMainLoop,10,5); //schedule 1 move every 5ms (200fps)
 
-
+        //Initialize block
         myMainLoop.createBlock();
-        Log.d("CreateBlock","boop");
-        //l1.addView(motionx);
+
+        //set up sensors
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         AccelerometerEventListener ael = new AccelerometerEventListener(motionx,readingOutput, myMainLoop);
-        Log.d("CreateBlock","accelerometer");
         sensorManager.registerListener(ael,accelerometer,SensorManager.SENSOR_DELAY_GAME);
-        Log.d("CreateBlock","sensor manager");
+
         //record data button
         myButton = new Button (getApplicationContext());
         myButton.setOnClickListener(new View.OnClickListener(){
@@ -98,13 +94,10 @@ public class MainActivity extends AppCompatActivity {
         myButton.setX(400);
         myButton.setY(2000);
         l1.addView(myButton);
-
-       
-
-
     }
 
-    public TextView createLabel (String labelName){
+    public TextView createLabel (String labelName) //a convenient function for setting up textviews
+    {
         TextView tv1 = new TextView(getApplicationContext());
         tv1.setText(labelName);
         tv1.setTextColor(Color.WHITE);

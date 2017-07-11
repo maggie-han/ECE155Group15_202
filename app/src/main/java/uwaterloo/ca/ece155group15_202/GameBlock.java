@@ -17,9 +17,9 @@ class GameBlock extends GameBlockTemplate {
     ImageView block = new ImageView(getContext());
 
     RelativeLayout mylayout;
-    TextView blockText = new TextView(getContext());
-    public int BlockValue = 0;
-    public int futureValue = 0;
+    TextView blockText = new TextView(getContext()); //textview of the number
+    public int BlockValue = 0;  //contains the current block value
+    public int futureValue = 0; //value to be updated after all animation finish
 
     /*create grid (example if left move is called positions could be
     _ _0_ _1_ _2_ _3_ _X
@@ -35,6 +35,7 @@ class GameBlock extends GameBlockTemplate {
     Y
     */
 
+    //position according to above grid
     public int xi,yi,xf,yf;
 
     //integers for velocity in x an y directions
@@ -62,24 +63,22 @@ class GameBlock extends GameBlockTemplate {
     //distance between spaces on the grid
     public int GridBlockSize = 360;
 
-
-
+    //constructor of the bloock, set up most values used
     public GameBlock(Context c, RelativeLayout l1){
         super(c);
         mylayout = l1;
         blockText.setText(String.valueOf(BlockValue));
         futureValue=BlockValue;
-        //blockText.setTextSize(16);
-        blockText.setX(positionXi + ValOffsetX);
+        blockText.setX(positionXi + ValOffsetX); //position include offset from the grid
         blockText.setY(positionYi + ValOffsetY);
-        blockText.bringToFront();
+        blockText.bringToFront();               //need to be the front most
         blockText.setTextSize(40);
         blockText.setTextColor(Color.GREEN);
-        l1.addView(blockText);
+        l1.addView(blockText);                  //add the textview
 
     }
 
-    public void setDestination(){
+    public void setDestination(){//inherited from the gameBlockTemplate
 
     }
 
@@ -97,10 +96,10 @@ class GameBlock extends GameBlockTemplate {
         this.BlockValue = randVal;
         this.futureValue = randVal;
         Log.d("TV", "setting random value");
-
         this.blockText.setText(String.valueOf(randVal));
         this.blockText.bringToFront();
     }
+    //given parameter,sets position of block
     public void setPosition(int x, int y){
         Log.d("CreateBlock","settingPosition");
         //set initial position values
@@ -116,7 +115,7 @@ class GameBlock extends GameBlockTemplate {
         positionYi = yi*GridBlockSize+offsety;
         positionYf = yf*GridBlockSize+offsety;
 
-
+        //the textView will have the same position as the block excepet with different offset
         this.blockText.setX(positionXi+ValOffsetX);
         this.blockText.setY(positionYi+ValOffsetY);
         this.setX(positionXi);
@@ -126,54 +125,23 @@ class GameBlock extends GameBlockTemplate {
     }
 
     public void move(){
-        if (this.changedFlag)
+        if (this.changedFlag) //if it receives a notice to change position
         {
             if (this.positionXi==this.positionXf&&this.positionYi==this.positionYf)
             {
                 //stop the block when it reaches the final x and y coords
-                Log.d("LEFT","STOPPED");
-                //set the changed falg of the block to false indicating it has stopped moving
+                //set the changed flag of the block to false indicating it has stopped moving
                 this.changedFlag = false;
                 this.stop();
             }
             else
             {
-                Log.d("LEFT","moving");
-                //increase velocity as it traverses the board
-                //this.velocityX+=this.ax;
-                //this.velocityY+=this.ay;
 
                 //move the block a distance equivalent to the velocity
                 this.positionXi+=this.velocityX;
                 this.positionYi+=this.velocityY;
 
-
-                //stop the block if it exceeds the game boarders
-                //do the same for each direction
-                /*if (this.positionXi>359*3+this.offsetx) {
-                    this.positionXi = 1009;
-                    this.setX(this.positionXi);
-                    this.blockText.setX(this.positionXi + ValOffsetX);
-                    this.stop();
-                }
-                else if (this.positionXi<this.offsetx) {
-                    this.positionXi = -68;
-                    this.setX(this.positionXi);
-                    this.blockText.setX(this.positionXi + ValOffsetX);
-                    this.stop();
-                }
-                if (this.positionYi>359*3+this.offsety) {
-                    this.positionYi = 1004;
-                    this.setY(this.positionYi);
-                    this.blockText.setY(this.positionYi + ValOffsetY);
-                    this.stop();
-                }
-                else if (this.positionYi<this.offsety) {
-                    this.positionYi = -73;
-                    this.setY(this.positionYi);
-                    this.blockText.setY(this.positionYi + ValOffsetY);
-                    this.stop();
-                }*/
+                //set the position for the block and the corresponding textview
                 this.setX(this.positionXi);
                 this.blockText.setX(this.positionXi + ValOffsetX);
                 this.setY(this.positionYi);
@@ -182,6 +150,8 @@ class GameBlock extends GameBlockTemplate {
 
         }
     }
+
+    //functions for easily retrieving values
     public int getBlockValue(){
         return this.BlockValue;
     }
@@ -191,14 +161,11 @@ class GameBlock extends GameBlockTemplate {
     }
 
     public int getFinalPositionX(){
-
         return this.xf;
     }
     public int getFinalPOsitionY(){
         return this.yf;
     }
-
-
 
     //create functions for moving in directions (is the same for all move(direction) functions, assume identical operation
     public void moveLeft(int occupied,int merged){
@@ -216,30 +183,30 @@ class GameBlock extends GameBlockTemplate {
     }
 
     public void moveRight(int occupied,int merged){
-        if (xi<3) {
+        if (xi<3) {//ensure the block is not going to move outside of the board
             Log.d("Lab4","Function");
             changedFlag=true;
-            xf = 3-occupied+merged;
-            positionXf = xf*GridBlockSize+offsetx;
+            xf = 3-occupied+merged; //blocks moves in the corresponding direction, taking consideration how many are occupied and how many spots merged
+            positionXf = xf*GridBlockSize+offsetx; //calculate the pixel value for position
             velocityX = 10;
             ax = 5;
         }
     }
     public void moveUp(int occupied,int merged){
-        if (yi>0) {
+        if (yi>0) {//ensure the block is not going to move outside of the board
             changedFlag=true;
-            yf = 0+occupied-merged;
-            positionYf = yf*GridBlockSize+offsety;
+            yf = 0+occupied-merged;//blocks moves in the corresponding direction, taking consideration how many are occupied and how many spots merged
+            positionYf = yf*GridBlockSize+offsety;//calculate the pixel value for position
             velocityY = -10;
             ay = -5;
         }
     }
 
     public void moveDown(int occupied,int merged){
-        if (yi<3) {
+        if (yi<3) {//ensure the block is not going to move outside of the board
             changedFlag=true;
-            yf = 3-occupied+merged;
-            positionYf = yf*GridBlockSize+offsety;
+            yf = 3-occupied+merged;//blocks moves in the corresponding direction, taking consideration how many are occupied and how many spots merged
+            positionYf = yf*GridBlockSize+offsety;//calculate the pixel value for position
             velocityY = 10;
             ay = 5;
         }
