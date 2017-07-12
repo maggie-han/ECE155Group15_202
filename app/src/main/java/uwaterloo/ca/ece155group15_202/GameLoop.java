@@ -118,7 +118,7 @@ class GameLoopTask extends TimerTask {
         block1.setImageResource(R.drawable.gameblockblueborder);    //image resource for given block
 
         //rescale the images
-        block1.setScaleX(0.66f);
+        block1.setScaleX(0.64f);
         block1.setScaleY(0.65f);
         Log.d("TV", "setting random value gameloop");
 

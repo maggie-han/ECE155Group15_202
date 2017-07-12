@@ -16,7 +16,8 @@ class AccelerometerEventListener implements SensorEventListener {
     private TextView motionx;  // for the display of the direction
     private myFSMX FSM_X;  // the finite state machine responsible for X direction
     private myFSMY FSM_Y;  // for Y direction
-    private GameLoopTask block;
+    private
+    GameLoopTask block;
 
 
     public AccelerometerEventListener(TextView mox, ArrayList<String> r,GameLoopTask b){

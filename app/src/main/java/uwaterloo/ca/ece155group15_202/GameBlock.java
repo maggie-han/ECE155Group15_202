@@ -86,6 +86,16 @@ class GameBlock extends GameBlockTemplate {
     public void setValue(int value){
         this.BlockValue = value;
         this.futureValue = value;
+        if(value >= 10 && value  <100){
+            this.ValOffsetX = 165;
+            blockText.setX(positionXi + ValOffsetX);
+        }
+
+        else if(value >=100){
+            this.ValOffsetX = 125;
+            blockText.setX(positionXi + ValOffsetX);
+        }
+
         this.blockText.setText(String.valueOf(value));
         this.blockText.bringToFront();
 
